@@ -1,0 +1,7 @@
+mkdocs
+mkdocs-material
+mkdocs-material-adr
+mkdocs-swagger-ui-tag
+mkdocs-glightbox
+mkdocs-rss-plugin
+markdown-exec

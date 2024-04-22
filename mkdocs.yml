@@ -1,0 +1,143 @@
+---
+site_name: Open Infrastructure Blog
+site_description: >-
+  Open Infrastructure Blog, a Rackspace OpenStack Blog talking about OpenStack, Kubernetes, and other open-source technologies.
+
+site_url: https://blog.rackspacecloud.com
+
+theme:
+  name: material
+  logo: assets/images/rackspace_logo-white.svg
+  favicon: assets/images/pngegg.png
+  icon:
+    logo: logo
+  palette:
+    - media: "(prefers-color-scheme)"
+      toggle:
+        icon: material/link
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: black
+      accent: red
+      toggle:
+        icon: material/toggle-switch
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: rxt
+      primary: black
+      accent: red
+      toggle:
+        icon: material/toggle-switch-off
+        name: Switch to system preference
+
+  font:
+    text: Roboto
+    code: Roboto Mono
+
+  features:
+    - announce.dismiss
+    - header.autohide
+    - content.action.edit
+    - content.action.view
+    - content.code.annotate
+    - content.code.copy
+    - content.tooltips
+    # - navigation.footer
+    - navigation.indexes
+    - navigation.instant
+    - navigation.instant.progress
+    - navigation.instant.preview
+    - navigation.prune
+    - navigation.path
+    - navigation.sections
+    - navigation.tabs
+    - navigation.top
+    - navigation.tracking
+    - search.highlight
+    - search.share
+    - search.suggest
+    - toc.follow
+
+copyright: Copyright &copy; 2024 RACKSPACE TECHNOLOGY
+
+extra:
+  social:
+    - icon: fontawesome/brands/linkedin
+      link: https://linkedin.com/company/rackspace
+      name: Rackspace on LinkedIn
+    - icon: fontawesome/brands/x-twitter
+      link: https://twitter.com/rackspace
+      name: Rackspace on X
+    - icon: fontawesome/brands/github
+      link: https://github.com/rackerlabs
+      name: Rackspace on github
+    - icon: fontawesome/brands/discord
+      link: https://discord.gg/2mN5yZvV3a
+      name: Rackspace on Discord
+    - icon: fontawesome/solid/book
+      link: https://docs.rackspacecloud.com
+      name: Rackspace Cloud Docs
+
+extra_css:
+  - overrides/stylesheets/adr.css
+
+plugins:
+  - swagger-ui-tag
+  - mkdocs-material-adr/adr
+  - glightbox
+  - blog:
+      post_slugify: !!python/object/apply:pymdownx.slugs.slugify
+        kwds:
+          case: lower
+      post_slugify_separator: _
+      categories_name: Categories
+      categories_url_format: "category/{slug}"
+      # authors_profiles_pagination: false
+      # authors_profiles: true
+      categories: true
+      categories_toc: true
+  - search:
+      separator: '[\s\u200b\-_,:!=\[\]()"`/]+|\.(?!\d)|&[lg]t;|(?!\b)(?=[A-Z][a-z])'
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - def_list
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.superfences:
+      custom_fences:
+        - name: python
+          class: python
+          validator: !!python/name:markdown_exec.validator
+          format: !!python/name:markdown_exec.formatter
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.details
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.snippets:
+      restrict_base_path: false
+
+repo_name: rackerlabs/genestack-blog
+repo_url: https://github.com/rackerlabs/genestack-blog
+dev_addr: "127.0.0.1:8001"
+edit_uri: "edit/main/docs"
+
+nav:
+  - Home: index.md
+  - Blog:
+      - blog/index.md
+  - Contributing: blog/contributing.md
+  - Docs: https://docs.rackspacecloud.com

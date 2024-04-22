@@ -1,0 +1,18 @@
+---
+authors:
+  rackerlabs:
+    name: Rackerlabs
+    description: Our collection of Rackers
+    avatar: https://github.com/rackerlabs.png
+    github: rackerlabs
+    twitter: rackspace
+    linkedin: rackspace
+    website: https://docs.rackspacecloud.com
+  cloudnull:
+    name: Kevin Carter
+    description: Product Director. Developer? Cloud! Caffeine-fueled confidence.
+    avatar: https://github.com/cloudnull.png
+    github: cloudnull
+    twitter: cloudnull
+    linkedin: cloudnull
+    website: https://cloudnull.io
