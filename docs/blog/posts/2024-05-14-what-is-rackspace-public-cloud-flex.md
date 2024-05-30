@@ -18,7 +18,7 @@ In 2024, the Rackspace Cloud team has been hard at work developing the next-gene
 
 ## GeneStack: The Foundation of Rackspace OpenStack Flex
 
-GeneStack (Genesis+OpenStack) is the code name for our latest OpenStack implementation based on OpenStack-Helm. By leveraging Kubernetes, GeneStack offers flexibility and scalability of cloud infrastructure that wasn't easily possible using yesterday's tooling. Kubernetes also offers operational benefits and visibility that simplify cloud management. Day-to-day, this architecture shift is expected to be transparent to the user, but offers a series upside when it comes to upgrades and other maintenance of the cloud infrastructure.
+GeneStack (Genesis+OpenStack) is the code name for our latest OpenStack implementation based on OpenStack-Helm. By leveraging Kubernetes, GeneStack offers flexibility and scalability of cloud infrastructure that wasn't easily possible using yesterday's tooling. Kubernetes also offers operational benefits and visibility that simplify cloud management. Day-to-day, this architecture shift is expected to be transparent to the user, but offers a serious upside when it comes to upgrades and other maintenance of the cloud infrastructure.
 
 ### Networking
 
@@ -36,7 +36,7 @@ Users will be allowed to consume upstream cloud images from major providers such
 
 ### Storage
 
-Rackspace expects to offer mulitple commodity and Enterprise-grade storage solutions to meet the needs of all workloads. Both block and object storage will be available equipped with high-performant SSD and NVMe options. Customers can launch volume-backed instances, perform snapshots of instances and volumes, and leverage both Swift and S3-compatible APIs for object storage. Multiple block storage backends offer a choice of 'nines' based on your level of risk and price point.
+Rackspace expects to offer multiple commodity and Enterprise-grade storage solutions to meet the needs of all workloads. Both block and object storage will be available equipped with high-performant SSD and NVMe options. Customers can launch volume-backed instances, perform snapshots of instances and volumes, and leverage both Swift and S3-compatible APIs for object storage. Multiple block storage backends offer a choice of 'nines' based on your desired level of risk and price point.
 
 ## Join us
 
