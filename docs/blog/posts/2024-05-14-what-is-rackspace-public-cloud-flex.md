@@ -36,8 +36,8 @@ Users will be allowed to consume upstream cloud images from major providers such
 
 ### Storage
 
-Rackspace expects to offer mulitple commodity and Enterprise-grade storage solutions to meet the needs of all workloads. Both block and object storage will be available equipped with high-performant SSD and NVMe options. Customers can launch volume-backed instances, perform snapshots of instances and volumes, and leverage both Swift and S3-compatible APIs for object storage. Multiple block storage backends offer a choice of 'nines' based on your level of risk and price point.
+Rackspace expects to offer multiple commodity and Enterprise-grade storage solutions to meet the needs of all workloads. Both block and object storage will be available equipped with high-performant SSD and NVMe options. Customers can launch volume-backed instances, perform snapshots of instances and volumes, and leverage both Swift and S3-compatible APIs for object storage. Multiple block storage backends offer a choice of 'nines' based on your desired level of risk and price point.
 
 ## Join us
 
-Rackspace OpenStack Flex is a natural successor to OSPC, and the start of a new 'flexible' foundation for upcoming Rackspace technologies and offerings. If you're interested in testing driving the multi-tenant Rackspace OpenStack Flex cloud or are looking for a dedicated private cloud a la Rackspace OpenStack Enterprise, give us a call!
+Rackspace OpenStack Flex is a natural successor to OSPC, and the start of a new 'flexible' foundation for upcoming Rackspace technologies and offerings. If you're interested in testing driving the multi-tenant Rackspace OpenStack Flex cloud or are looking for a dedicated private cloud ala Rackspace OpenStack Enterprise, give us a call!
