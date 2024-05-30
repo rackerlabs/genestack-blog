@@ -24,7 +24,7 @@ GeneStack (Genesis+OpenStack) is the code name for our latest OpenStack implemen
 
 The Rackspace OpenStack Flex cloud differs from the legacy OpenStack Public Cloud (OSPC) in many ways, but especially when it comes to networks. Rackspace has adopted a leaf/spine architecture along with BGP eVPN to provide scale that could not be achieved with the traditional core-aggr-tor design. Rather than virtual machine instances being connected to a front-end PUBLICNET and back-end SERVICENET network by default, users within a project are now able to easily define a network architecture that consists of a virtual router connected to an external 'public' provider network and one or more inside 'tenant' networks. No longer will instances be configured with a public IP directly, rather, they will utilize a user-defined network address space and leverage source NAT (SNAT) and destination NAT (DNAT) where required. In OpenStack parlance, this is NAT functionality is known as Floating IP - or Elastic IP if you're coming from AWS.
 
-![Virtual Route Domain](assets/images/2024-05-14-what-is-rackspace-public-cloud-flex/virtual_route_domain2.png)
+![Virtual Route Domain](assets/images/2024-05-14/virtual_route_domain2.png)
 
 Self-service networking is made possible by the use of a network overlay. OpenStack Flex uses GENEVE as the overlay technology with Open Virtual Network (OVN) as the underlying network plugin. GENEVE differs from VXLAN by providing a larger header that can be used to describe additional characteristics about the network at a lower level than what is available to tenants. The use of an overlay allows for network scaling with limited impact to performance. While there could be limitations for certain traffic types, such as multicast, most network traffic is supported. Feel free to reach out to the Rackspace OpenStack Flex support team to discuss additional options that might be available.
 
@@ -36,7 +36,7 @@ Users will be allowed to consume upstream cloud images from major providers such
 
 ### Storage
 
-Rackspace expects to offer mulitple commodity and Enterprise-grade storage solutions to meet the needs of all workloads. Both block and object storage will be available equipped with high-performant SSD and NVMe options. Customers can launch volume-backed instances, perform snapshots of instances and volumes, and leverage both Swift and S3-compatible APIs for object storage. Multiple block storage backends offer a choice of 'nines' based on your level of risk and price point. 
+Rackspace expects to offer mulitple commodity and Enterprise-grade storage solutions to meet the needs of all workloads. Both block and object storage will be available equipped with high-performant SSD and NVMe options. Customers can launch volume-backed instances, perform snapshots of instances and volumes, and leverage both Swift and S3-compatible APIs for object storage. Multiple block storage backends offer a choice of 'nines' based on your level of risk and price point.
 
 ## Join us
 
