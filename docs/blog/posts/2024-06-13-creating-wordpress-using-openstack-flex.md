@@ -13,6 +13,8 @@ categories:
 
 Here I wanted to show our customers and hopefully future customers on how easy it is to host your own Wordpress site using Openstack Flex. 
 
+<!-- more -->
+
 ## Getting Started:
 
 First you will need to set up your clouds.yaml file to be able to complete the next steps. More information about that can be found [here](https://docs.rackspacecloud.com/build-test-envs/#configure-openstack-client). 
