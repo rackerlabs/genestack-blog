@@ -87,12 +87,12 @@ While the formatting of the blog post itself is up to you, we would highly recom
 
 !!! example "Post synopsis"
 
-    ``` text
+    ``` html
     Example opening paragraph
 
     <!-- more -->
 
     Content body...
-    ````
+    ```
 
 Using this option will create a synopsis for our main page, allowing more articles to be seen at a glance.
