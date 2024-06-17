@@ -87,7 +87,7 @@ While the formatting of the blog post itself is up to you, we would highly recom
 
 !!! example "Post synopsis"
 
-    ``` html
+    ``` text
     Example opening paragraph
 
     <!-- more -->
