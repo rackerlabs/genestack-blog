@@ -7,6 +7,9 @@ description: >
   Creating a WordPress site using Openstack-Flex
 categories:
   - General
+  - Wordpress
+  - Application
+  - Server
 ---
 
 # Creating a WordPress site using Openstack-Flex
