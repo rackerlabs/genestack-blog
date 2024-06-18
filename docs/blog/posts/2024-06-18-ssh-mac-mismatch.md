@@ -13,6 +13,8 @@ categories:
 
 Modern SSH configurations can sometimes lead to MAC (Message Authentication Code) limitations when connecting between systems with different client setups. I've recently run into this issue when operating from a Mac and connecting to newer operating systems, like NixOS. These limitations can be frustrating, but they are fixable with minimal effort. This post will show you how to change your SSH client to use an appropriate MAC, even if it's not explicitly allowed in your configuration.
 
+<!-- more -->
+
 ## What is a MAC
 
 A Message Authentication Code (MAC) is a security feature used to verify the integrity and authenticity of a message. Learn more about MACs [here](https://www.geeksforgeeks.org/message-authentication-codes).
