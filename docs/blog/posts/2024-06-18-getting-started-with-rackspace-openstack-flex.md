@@ -34,7 +34,7 @@ Rackspace OpenStack Flex is a true multi-tenant public cloud that leverages Rack
 
 To begin creating cloud resources during the Limited Availability (LA) period, the OpenStack client will be required. On MacOS, installation of the client is easily accomplished using a Python virtual environment to isolate related files and libraries.
 
-```
+``` shell
 $ mkdir ~/venvs; cd ~/venvs
 $ python3 -m venv openstacksdk
 $ source ~/venvs/openstacksdk/bin/activate
@@ -43,7 +43,7 @@ $ pip3 install openstacksdk
 
 Once installed, create/update a `clouds.yaml` file containing your credentials that can be leveraged by the OpenStack client:
 
-```
+``` shell
 $ mkdir ~/.config/openstack
 $ cat <<EOF >>~/.config/openstack/clouds.yaml
 cache:
@@ -70,7 +70,7 @@ See the configuration guide [here](https://docs.openstack.org/openstacksdk/lates
 
 Rackspace provides unmodified cloud images as a convenience to users. To list these public images, use the `openstack image list --public` command as shown here:
 
-```
+``` shell
 (openstacksdk) {8:44}~ ➭ openstack --os-cloud rxt-flex-sjc3 image list --public
 +--------------------------------------+----------------------+--------+
 | ID                                   | Name                 | Status |
@@ -103,7 +103,7 @@ Rackspace provides unmodified cloud images as a convenience to users. To list th
 
 Users are allowed to upload custom images, but be mindful that storing images in Flex may incur a nominal hourly fee. Check the fee schedule for more details.
 
-# Flavors
+## Flavors
 
 Flavors are often referred to as "t-shirt sizes" for requested virtual machine resources. Rackspace has pre-defined flavors describing common virtual machine instance characteristics, including:
 
@@ -113,7 +113,7 @@ Flavors are often referred to as "t-shirt sizes" for requested virtual machine r
 
 Using the `openstack flavor list` command, we can see the following pre-defined flavors are available for use:
 
-```
+``` shell
 (openstacksdk) {11:36}~ ➭ openstack --os-cloud rxt-flex-sjc3 flavor list
 +--------------------------------------+----------------+-------+------+-----------+-------+-----------+
 | ID                                   | Name           |   RAM | Disk | Ephemeral | VCPUs | Is Public |
@@ -132,21 +132,23 @@ Using the `openstack flavor list` command, we can see the following pre-defined 
 
     Certain operating systems may have minimum requirements, so be sure to check with the vendor to see which flavor is most appropriate without overprovisioning. Rackspace provides a fee schedule for flavors and other resources that can be used to generate a total cost for the instance or virtual environment. 
 
-# Networks
+## Networks
 
 In the Rackspace OpenStack Flex cloud, users within a project/tenant are now able to easily build a network architecture that consists of a virtual router at its core that is connected to an external *public* network and one or more internal *project/tenant* networks. Unlike the legacy OpenStack Public Cloud, instances utilize user-defined network address space and leverage SNAT and DNAT by default rather than be configured with public IPs directly. 
 
 Self-service networking is made possible by the use of a network overlay. In the case of OpenStack Flex, the overlay technology is known as GENEVE. GENEVE differs from VXLAN by providing a larger header that can be used to describe additional characteristics about the network at a lower level than what is available to tenants, but from a user perspective there is no practical difference. Overlay networks aren't always compatible with all network technologies, such as multicast, so feel free to reach out to the Rackspace OpenStack Flex support team to discuss additional network options or workarounds that might be available.
 
-## Tenant network architecture
+### Tenant network architecture
 
 The core of tenant networking is a **virtual router**. It provides connectivity in and out of a tenant's virtual routing domain, and consists of a minimum of two interfaces: one external and one internal.
 
-<diagram>
+!!! info "Flex Virtual Router"
+
+    ![Neutron Virtual Router](assets/images/2024-06-18/flex-virtual-router.png)
 
 The **external** side of a virtual router connects to a single external provider network. External provider networks provide access to/from external networks, such as the Internet. This network is provided by Rackspace and is identified by the name **PUBLICNET**, as seen here:
 
-```
+``` shell
 (openstacksdk) {8:46}~ ➭ openstack --os-cloud rxt-flex-sjc3 network list --external
 +--------------------------------------+-----------+----------------------------------------------------------------------------+
 | ID                                   | Name      | Subnets                                                                    |
@@ -161,7 +163,7 @@ The **external** side of a virtual router connects to a single external provider
 
 The **internal** side of a virtual router connects to one of more networks defined within a project and created by a user of that project. Internal networks are traditionally connected to virtual machine instances. To list these internal networks, use the `openstack network list` command shown here:
 
-```
+``` shell
 openstack --os-cloud rxt-flex-sjc3 network list --internal
 ```
 
@@ -188,7 +190,7 @@ The following example demonstrates creating a network and associated subnet:
 - gateway: auto
 - dns nameservers: 1.1.1.1, 1.0.0.1
 
-```
+``` shell
 (openstacksdk) {10:47}~ ➭ openstack --os-cloud rxt-flex-sjc3 network create tenant-net
 
 +---------------------------+--------------------------------------+
@@ -226,7 +228,7 @@ The following example demonstrates creating a network and associated subnet:
 +---------------------------+--------------------------------------+
 ```
 
-```
+``` shell
 (openstacksdk) {10:50}~ ➭ openstack --os-cloud rxt-flex-sjc3 subnet create tenant-subnet \
 --network tenant-net \
 --subnet-range 192.168.100.0/24 \
@@ -282,7 +284,7 @@ A virtual router can be created and connected in multiple distinct steps, or as 
 - router name: tenant-router
 - external network: PUBLICNET
 
-```
+``` shell
 (openstacksdk) {11:00}~ ➭ openstack --os-cloud rxt-flex-sjc3 router create tenant-router --external-gateway PUBLICNET
 
 +-------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
@@ -315,13 +317,13 @@ To connect a tenant network to the router, you'll need the following:
 - router name or uuid
 - tenant subnet name or uuid
 
-```
+``` shell
 openstack --os-cloud rxt-flex-sjc3 router add subnet tenant-router tenant-subnet
 ```
 
 The operation does not provide any feedback to the user, but showing the properties of the virtual router will reveal its connected interfaces, like so:
 
-```
+``` shell
 (openstacksdk) {11:03}~ ➭ openstack --os-cloud rxt-flex-sjc3 router show tenant-router
 
 +-------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
@@ -365,7 +367,7 @@ Generating a new keypair is quick and painless using the `openstack keypair crea
 
 - keypair name: tenant-key
 
-```
+``` shell
 (openstacksdk) {11:09}~ ➭ openstack --os-cloud rxt-flex-sjc3 keypair create tenant-key
 
 -----BEGIN OPENSSH PRIVATE KEY-----
@@ -379,7 +381,7 @@ AAECAwQF
 
 The client will output the contents of the private key to stdout while storing the public key in the database:
 
-```
+``` shell
 (openstacksdk) {11:11}~ ➭ openstack --os-cloud rxt-flex-sjc3 keypair show tenant-key
 
 +-------------+------------------------------------------------------------------+
@@ -409,7 +411,7 @@ Should you want to leverage an existing SSH keypair on your local machine, use t
 - keypair name: existing-tenant-key
 - public key path: `~/.ssh/id_rsa.pub`
 
-```
+``` shell
 (openstacksdk) {11:21}~ ➭ openstack --os-cloud rxt-flex-sjc3 keypair create --public-key ~/.ssh/id_rsa.pub existing-tenant-key
 +-------------+------------------------------------------------------------------+
 | Field       | Value                                                            |
@@ -426,7 +428,7 @@ Should you want to leverage an existing SSH keypair on your local machine, use t
 
 Keypairs can be listed using the `openstack keypair list` command, as shown here:
 
-```
+``` shell
 (openstacksdk) {11:29}~ ➭ openstack --os-cloud rxt-flex-sjc3 keypair list
 +---------------------+-------------------------------------------------+------+
 | Name                | Fingerprint                                     | Type |
@@ -459,7 +461,7 @@ To create a new group, perform the following:
 
 - security group name: tenant-secgroup
 
-```
+``` shell
 (openstacksdk) {12:49}~ ➭ openstack --os-cloud rxt-flex-sjc3 security group create tenant-secgroup
 +-----------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 | Field           | Value                                                                                                                                                                            |
@@ -481,7 +483,7 @@ To create a new group, perform the following:
 
 The creation of the security group has triggered the creation of two *egress* rules - one for IPv4 and the other for IPv6. A quick look at the IPv4 rule shows the following:
 
-```
+``` shell
 (openstacksdk) {12:49}~ ➭ openstack --os-cloud rxt-flex-sjc3 security group rule show f2e4bed0-d885-45da-bc3a-5ecea52ef7e2
 +-------------------------+--------------------------------------+
 | Field                   | Value                                |
@@ -517,7 +519,7 @@ To create a new rule allowing *ingress* SSH access to instances, perform the fol
 - protocol: tcp
 - destination port: 22
 
-```
+``` shell
 (openstacksdk) {12:54}~ ➭ openstack --os-cloud rxt-flex-sjc3 security group rule create tenant-secgroup \
 --protocol tcp \
 --ingress \
@@ -570,7 +572,7 @@ To launch an instance with the following characteristics, use the `openstack ser
 - flavor name: m1.small
 - security group name: tenant-secgroup
 
-```
+``` shell
 (openstacksdk) {12:56}~ ➭ openstack --os-cloud rxt-flex-sjc3 server create Server01 \
 --network tenant-net \
 --image Ubuntu-22.04 \
@@ -612,7 +614,7 @@ To launch an instance with the following characteristics, use the `openstack ser
 
 Using the `openstack server list` command, you can observe the state of all virtual machine instances within the project:
 
-```
+``` shell
 (openstacksdk) {11:40}~ ➭ openstack --os-cloud rxt-flex-sjc3 server list
 +--------------------------------------+----------+--------+----------------------------+--------------+----------+
 | ID                                   | Name     | Status | Networks                   | Image        | Flavor   |
@@ -644,7 +646,7 @@ To associate the Floating IP with an instance and/or port, you'll need the follo
 
 The create a Floating IP, perform the following:
 
-```
+``` shell
 (openstacksdk) {14:03}~ ➭ openstack --os-cloud rxt-flex-sjc3 floating ip create PUBLICNET
 
 +---------------------+--------------------------------------+
@@ -678,7 +680,7 @@ The create a Floating IP, perform the following:
 
 To associate the floating IP, you'll first need to find the ID of the instance's port and then perform the association. Perform the following to find the ports of an instance and make the association:
 
-```
+``` shell
 (openstacksdk) {14:06}~ ➭ openstack --os-cloud rxt-flex-sjc3 port list --device-id ded52112-1961-40fe-bdd8-91c42897fd81
 
 +--------------------------------------+------+-------------------+--------------------------------------------------------------------------------+--------+
@@ -692,7 +694,7 @@ To associate the floating IP, you'll first need to find the ID of the instance's
 
 The association operation does not provide any feedback to the user, but listing the floating IPs will demonstrate the association, like so:
 
-```
+``` shell
 (openstacksdk) {14:08}~ ➭ openstack --os-cloud rxt-flex-sjc3 floating ip list
 
 +--------------------------------------+---------------------+------------------+--------------------------------------+--------------------------------------+----------------------------------+
@@ -704,7 +706,7 @@ The association operation does not provide any feedback to the user, but listing
 
 Armed with the floating IP address, you can now attempt a connection to the virtual machine instance:
 
-```
+``` shell
 (openstacksdk) {14:10}~ ➭ ssh -i ~/.ssh/tenant-key ubuntu@63.131.145.210
 Warning: Permanently added '63.131.145.210' (RSA) to the list of known hosts.
 Welcome to Ubuntu 22.04.4 LTS (GNU/Linux 5.15.0-102-generic x86_64)
@@ -747,7 +749,7 @@ ubuntu@server01:~$
 
 Some quick validation of the VM shows it's running Ubuntu 22.04 and has the defined flavor characteristics:
 
-```
+``` shell
 ubuntu@server01:~$ curl https://icanhazip.com
 63.131.145.210
 ubuntu@server01:~$ uname -a
@@ -785,7 +787,7 @@ tmpfs           5.0M     0  5.0M   0% /run/lock
 tmpfs           196M  4.0K  196M   1% /run/user/1000
 ```
 
-# Conclusion
+## Conclusion
 
 It may seem like a lot of steps to onboard a VM, but 90% of what has been described and built here is a **One Time Thing™** that sets the foundation for subsequent launches. In the future, we'll demonstrate how to leverage tools like Ansible and Terraform to speed up these same operations in an idempotent and repeatable fashion.
 
