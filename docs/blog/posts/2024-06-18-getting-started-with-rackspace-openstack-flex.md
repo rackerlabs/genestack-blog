@@ -49,7 +49,7 @@ $ cat <<EOF >>~/.config/openstack/clouds.yaml
 cache:
   auth: true
 clouds:
-  <cloud nickname>:
+  rxt-flex-sjc3:
     auth:
       auth_url: https://<api endpoint>/v3
       project_name: <project name>
@@ -57,7 +57,7 @@ clouds:
       username: <username>
       password: <token/password>
       user_domain_name: <user domain>
-    region_name: <region name>
+    region_name: SJC3
     interface: public
     identity_api_version: "3"
     insecure: false
