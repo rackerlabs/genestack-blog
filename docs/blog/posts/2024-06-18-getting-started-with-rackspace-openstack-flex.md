@@ -12,7 +12,7 @@ categories:
 # Getting Started With Rackspace OpenStack Flex
 
 We're now mid-way through 2024, and the Rackspace Public Cloud team has been hard at work building and delivering the successor to the Rackspace OpenStack Public Cloud (OSPC) first launched in 2012. As Limited Availability (LA) access to our latest multi-tenant OpenStack-based public cloud approaches and content begins to build up here on the blog, I thought it prudent to provide guidance on how one might onboard themselves and build resources on the platform.
-<!--more-->
+<!-- more -->
 
 Currently known as **OpenStack Flex**, this new multi-tenant cloud platform differs from our legacy OpenStack Public Cloud (OSPC) in many ways; most notably in its tenant-facing network architecture and adoption of KVM over Xenserver. Tenants have the flexibility to design their own network architecture within their virtual routing domain to create a more secure and performant environment. In addition, multiple storage backends will be available to handle workloads of all shapes and sizes. Have I mentioned **OpenStack** ***Flex*** is all about ***flexibility***?
 
