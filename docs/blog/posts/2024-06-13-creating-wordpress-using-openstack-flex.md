@@ -15,6 +15,10 @@ categories:
 
 Here I wanted to show our customers and hopefully future customers on how easy it is to host your own Wordpress site using Openstack Flex. 
 
+Below is a video that you can follow along with that will take you through a step by step setup. 
+
+[![Openstack-Flex Wordpress](https://img.youtube.com/vi/Qi2jkjjqU-Y/0.jpg)](https://youtu.be/Qi2jkjjqU-Y)
+
 <!-- more -->
 
 ## Getting Started:
