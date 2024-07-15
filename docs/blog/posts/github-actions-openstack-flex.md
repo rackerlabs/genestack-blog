@@ -16,6 +16,8 @@ categories:
 
 Welcome! In this blog post we are going to go over connecting our Openstack-Flex instance to GitHub-actions through the use of self-hosted runners. We will be using an small Ubuntu image for our example, but if you would like a more in-depth look into setting up your environment please check out James’ blog post [here](https://blog.rackspacecloud.com/blog/2024/06/18/getting_started_with_rackspace_openstack_flex).
 
+<!-- more -->
+
 ## Creating our Openstack-Flex Server
 
 Fist we are going to create our Flex router. 
