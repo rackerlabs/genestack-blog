@@ -11,17 +11,17 @@ categories:
   - Server
 ---
 
-# Creating a Ghost site with Openstack-Flex
+## Creating a Ghost site with Openstack-Flex
 
 Welcome! In this blog post we are going over using Openstack-Flex to deploy Ghost. If you havent used ghost before and would like more information about it please visit their website using the link  [here](https://ghost.org/)
 
 <!-- more -->
 
-## Getting Started:
+## Getting Started
 
 First you will need to set up your clouds.yaml file to be able to complete the next steps. More information about that can be found [here](https://docs.rackspacecloud.com/build-test-envs/#configure-openstack-client).
 
-## Creating our Openstack-Flex Server
+### Creating our Openstack-Flex Server
 
 Fist we are going to create our Flex router.
 
@@ -109,7 +109,7 @@ SSH into your new Server!
 ssh -i ~/.ssh/flex-key ubuntu@{floating-ip}
 ```
 
-# Deploying our Ghost website on our Openstack-Flex server
+## Deploying our Ghost website on our Openstack-Flex server
 
 Once we have created our Openstack-Flex Server we will want to make sure everything is up to date.
 
