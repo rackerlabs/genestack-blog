@@ -23,7 +23,7 @@ First you will need to set up your clouds.yaml file to be able to complete the n
 
 ### Creating our Openstack-Flex Server
 
-Fist we are going to create our Flex router.
+First we are going to create our Flex router.
 
 ``` shell
 openstack  --os-cloud {cloud_name} router create flex-router
