@@ -56,7 +56,7 @@ Connect the subnet to our flex-router
 openstack --os-cloud {cloud_name} router add subnet flex-router flex-subnet
 ```
 
-Now we need to create our security group, this is the group which specify the network access rules. For our example now we are only going to allow SSH access.
+Now we need to create our security group, this is the group which specify the network access rules. For our example we are only going to allow SSH access.
 
 ``` shell
 openstack --os-cloud {cloud_name} security group create flex-sg
