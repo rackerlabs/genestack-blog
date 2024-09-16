@@ -11,17 +11,19 @@ categories:
   - Server
 ---
 
-# Creating a Ghost site with Openstack-Flex
+## Creating a Ghost site with Openstack-Flex
 
 Welcome! In this blog post we are going over using Openstack-Flex to deploy Ghost. If you havent used ghost before and would like more information about it please visit their website using the link  [here](https://ghost.org/)
 
-## Getting Started:
+<!-- more -->
 
-First you will need to set up your clouds.yaml file to be able to complete the next steps. More information about that can be found [here](https://docs.rackspacecloud.com/build-test-envs/#configure-openstack-client). 
+## Getting Started
 
-## Creating our Openstack-Flex Server
+First you will need to set up your clouds.yaml file to be able to complete the next steps. More information about that can be found [here](https://docs.rackspacecloud.com/build-test-envs/#configure-openstack-client).
 
-Fist we are going to create our Flex router. 
+### Creating our Openstack-Flex Server
+
+First we are going to create our Flex router.
 
 ``` shell
 openstack  --os-cloud {cloud_name} router create flex-router
@@ -54,7 +56,7 @@ Connect the subnet to our flex-router
 openstack --os-cloud {cloud_name} router add subnet flex-router flex-subnet
 ```
 
-Now we need to create our security group, this is the group which specify the network access rules. For our example now we are only going to allow SSH access. 
+Now we need to create our security group, this is the group which specify the network access rules. For our example we are only going to allow SSH access.
 
 ``` shell
 openstack --os-cloud {cloud_name} security group create flex-sg
@@ -64,7 +66,7 @@ openstack --os-cloud {cloud_name} security group create flex-sg
 openstack --os-cloud {cloud_name} security group rule create --ingress --remote-ip 0.0.0.0/0 --dst-port 22 --protocol tcp flex-sg
 ```
 
-Now we need to create our floating ip. 
+Now we need to create our floating ip.
 
 !!! note
 
@@ -79,16 +81,16 @@ Now we are going to create our Public and Private ssh keys so we can securely co
 ``` shell
 ssh-keygen
 ```
-This will prompt you store and name your private key. I did something like this /home/{username}/.ssh/flex-key. 
+This will prompt you store and name your private key. I did something like this /home/{username}/.ssh/flex-key.
 
 After that we will create our public key using the command below then we will assign it using the the openstack cli tools.
 
 ``` shell
-ssh-keygen -f ~/.ssh/flex-key -y > ~/.ssh/flex-key.pub 
+ssh-keygen -f ~/.ssh/flex-key -y > ~/.ssh/flex-key.pub
 openstack —os-cloud {cloud_name} keypair create --public-key ~/.ssh/flex-key.pub flex-key
 ```
 
-Now we create our server! This should include the flavor you'd like to use, the image, memory, network, key-name, and security group for this example. 
+Now we create our server! This should include the flavor you'd like to use, the image, memory, network, key-name, and security group for this example.
 
 ``` shell
  openstack --os-cloud {cloud_name} server create --flavor m1.medium --image Ubuntu-22.04 --boot-from-volume 40 --network flex-network --key-name flex-key --security-group flex-sg flex-server
@@ -101,15 +103,15 @@ openstack --os-cloud {cloud_name} port list
 openstack --os-cloud {cloud_name} floating ip set --port {port id} {floating-ip}
 ```
 
-SSH into your new Server! 
+SSH into your new Server!
 
 ``` shell
 ssh -i ~/.ssh/flex-key ubuntu@{floating-ip}
 ```
 
-# Deploying our Ghost website on our Openstack-Flex server
+## Deploying our Ghost website on our Openstack-Flex server
 
-Once we have created our Openstack-Flex Server we will want to make sure everything is up to date. 
+Once we have created our Openstack-Flex Server we will want to make sure everything is up to date.
 
 ``` shell
 sudo apt-get update && sudo apt-get upgrade -y
@@ -132,14 +134,14 @@ Start nginx
 sudo systemctl start nginx
 ```
 
-Next we install Mysql 
+Next we install Mysql
 
 ``` shell
 sudo apt install mysql-server
 sudo mysql_secure_installation
 ```
 
-Next we need to use mysql and create our wordpress database with our username and password. Please create your own personal username and password. 
+Next we need to use mysql and create our wordpress database with our username and password. Please create your own personal username and password.
 
 ``` shell
 sudo mysql
