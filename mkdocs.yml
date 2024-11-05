@@ -62,9 +62,9 @@ theme:
 copyright: Copyright &copy; 2024 RACKSPACE TECHNOLOGY
 
 extra:
-analytics:
-    provider: google
-    property: G-NL7YK8QF0X
+  analytics:
+      provider: google
+      property: G-NL7YK8QF0X
   social:
     - icon: fontawesome/brands/linkedin
       link: https://linkedin.com/company/rackspace
