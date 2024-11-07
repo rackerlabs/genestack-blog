@@ -107,10 +107,10 @@
 .md-content {
     flex-grow: 1;
     min-width: 0;
-    max-width: 1000px;
+    max-width: 1500px;
 }
 
-@media only screen and (min-width: 1220px) {
+@media only screen and (min-width: 1740px) {
     .md-main {
         flex-grow: 1;
         margin-left: auto;
@@ -221,15 +221,6 @@
 
     .md-nav__item .md-nav__link--active,.md-nav__item .md-nav__link--active code {
         color: #9e0000;
-    }
-    .md-meta__link {
-        color: #9e0000;
-    }
-    .md-search-result__more>summary>div {
-        color: #eb0000;
-        font-size: .64rem;
-        padding: .75em .8rem;
-        transition: color .25s,background-color .25s
     }
 }
 
