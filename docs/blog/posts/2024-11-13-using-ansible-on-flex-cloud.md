@@ -44,52 +44,27 @@ from the bastion host from where the ansible adhoc commands and ansible playbook
 
 + Then we will need the fixed ip(s) assigned to the running instances:
 ```shell
-(genestack) root@bastn:~# for i in $(openstack server list -c ID -f value); do openstack port list --server $i -c "Fixed IP Addresses"; done
-
-+----------------------------------------------------------------------------+
-
-| Fixed IP Addresses                                                         |
-
-+----------------------------------------------------------------------------+
-
-| ip_address='172.16.8.94', subnet_id='d31a8c8b-e8f5-47fa-9d2e-0d30df2fd37c' |
-
-+----------------------------------------------------------------------------+
-
-+-----------------------------------------------------------------------------+
-
-| Fixed IP Addresses                                                          |
-
-+-----------------------------------------------------------------------------+
-
-| ip_address='172.16.8.170', subnet_id='d31a8c8b-e8f5-47fa-9d2e-0d30df2fd37c' |
-
-+-----------------------------------------------------------------------------+
+(genestack) root@bastn:~# for i in $(openstack server list -c ID -f value); do openstack port list --server $i -c "Fixed IP Addresses" -f value; done
+[{'subnet_id': 'd31a8c8b-e8f5-47fa-9d2e-0d30df2fd37c', 'ip_address': '172.16.8.94'}]
+[{'subnet_id': 'd31a8c8b-e8f5-47fa-9d2e-0d30df2fd37c', 'ip_address': '172.16.8.170'}]
 ```
 
 + With the fixed ip(s) for the ports associated with the instances we can capture the floating ip(s) associated with these instances:
 ```shell
-(genestack) root@bastn:~# for i in 172.16.8.94 172.16.8.170; do openstack floating ip list --fixed-ip-address $i; done
+(genestack) root@bastn:~# for i in 172.16.8.94 172.16.8.170; do openstack floating ip list --fixed-ip-address $i -f yaml; done
+- Fixed IP Address: 172.16.8.94
+  Floating IP Address: 10.10.10.151
+  Floating Network: c03d6556-d7cb-44c6-a0cd-2985c47ddcfd
+  ID: 2f1163f2-46c7-4092-8755-db0542ec2383
+  Port: f6051f7f-c2b4-4803-9453-3ac67da27c55
+  Project: 7d9c7a46b38d40b891dd0c40644773ee
 
-+--------------------------------------+---------------------+------------------+--------------------------------------+--------------------------------------+----------------------------------+
-
-| ID                                   | Floating IP Address | Fixed IP Address | Port                                 | Floating Network                     | Project                          |
-
-+--------------------------------------+---------------------+------------------+--------------------------------------+--------------------------------------+----------------------------------+
-
-| 2f1163f2-46c7-4092-8755-db0542ec2383 | 10.10.10.151        | 172.16.8.94      | f6051f7f-c2b4-4803-9453-3ac67da27c55 | c03d6556-d7cb-44c6-a0cd-2985c47ddcfd | 7d9c7a46b38d40b891dd0c40644773ee |
-
-+--------------------------------------+---------------------+------------------+--------------------------------------+--------------------------------------+----------------------------------+
-
-+--------------------------------------+---------------------+------------------+--------------------------------------+--------------------------------------+----------------------------------+
-
-| ID                                   | Floating IP Address | Fixed IP Address | Port                                 | Floating Network                     | Project                          |
-
-+--------------------------------------+---------------------+------------------+--------------------------------------+--------------------------------------+----------------------------------+
-
-| 58ff2b9e-1ebb-475a-b60a-f645aa72b75f | 10.10.10.139        | 172.16.8.170     | 7fe428be-4fe0-4e09-ae0d-3aea09c1ccf4 | c03d6556-d7cb-44c6-a0cd-2985c47ddcfd | 7d9c7a46b38d40b891dd0c40644773ee |
-
-+--------------------------------------+---------------------+------------------+--------------------------------------+--------------------------------------+----------------------------------+
+- Fixed IP Address: 172.16.8.170
+  Floating IP Address: 10.10.10.139
+  Floating Network: c03d6556-d7cb-44c6-a0cd-2985c47ddcfd
+  ID: 58ff2b9e-1ebb-475a-b60a-f645aa72b75f
+  Port: 7fe428be-4fe0-4e09-ae0d-3aea09c1ccf4
+  Project: 7d9c7a46b38d40b891dd0c40644773ee
 ```
 
 + With the floating ip(s) listed we can create a simple **inventory.ini** inventory file for ansible:
@@ -149,6 +124,7 @@ In this example we can see that we can easily install **apache2** package on the
 + Let's say that we would like to run a full playbook against the instance named **test-alpha** running on the flex cloud; the example playbook in this case installs **apache2** package
 on the instance and configures a custom homepage for the guest; for this purpose we will first need to create the playbook and the jinja file:
 ```yaml title="main.yml"
+(genestack) root@bastn:~# cat main.yml
 ---
 - name: Playbook to install apache on Ubuntu instances on flex cloud
   hosts: alpha
@@ -183,6 +159,7 @@ on the instance and configures a custom homepage for the guest; for this purpose
         state: restarted  
 ```
 ```jinja title="index.html.j2"
+(genestack) root@bastn:~# cat index.html.j2
 <html>
 
 <head>
@@ -250,3 +227,4 @@ PLAY RECAP *********************************************************************
 
 test-alpha                 : ok=6    changed=4    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
 ```
+It should be noted that in this case the **ansible-key** is the key with which the instances were created and the same key is provided to ansible
