@@ -10,7 +10,7 @@ categories:
   - openstack
 ---
 # Using ansible to manage instances on flex cloud
-
+<!-- more -->
 In this blog post we will discuss how we can use ansible to manage instances running on a flex cloud. It is important to note that
 while it is possible to create resources on an openstack cloud using ansible itself but the main aim of this blog post is to discuss
 how we can manage existing instances running within a project with ansible. The examples provided in this blog post are for instances 
