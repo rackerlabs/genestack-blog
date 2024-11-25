@@ -13,11 +13,11 @@ categories:
 
 # Running datadog on Openstack-Flex
 
-![alt text](assets/images/2024-11-12/dd_logo_v_white.png){ align=left }
-
 As a user we need the ability to monitor servers deployed within a project. This is where datadog comes in. With monitoring services able to automatically register nodes, provide system level metrics, and allow users to create dashboards and alerts.
 
 <!-- more -->
+
+![alt text](assets/images/2024-11-12/dd_logo_v_white.png){ align=left }
 
 ### Creating our Openstack-Flex Server
 
