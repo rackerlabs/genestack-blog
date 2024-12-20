@@ -12,18 +12,18 @@ categories:
 
 # Using ansible to create resources on flex cloud
 
-Ansible has a wide range of modules available to create and manage resource like openstack flavors, images, keypairs, networks, routers
+Ansible has a wide range of modules available to create and manage resources like openstack flavors, images, keypairs, networks, routers
 among others on the flex cloud. These modules are available in the **Openstack.Cloud** ansible collection. In this post we will discuss
 creating resources on flex cloud using ansible modules.
 
 <!-- more -->
 
-# Pre-requisistes
+# Pre-requisites
 
   There are certain pre-requisites which are necessary to create resources with ansible:
 
 * A python virtual environment (though not strictly necessary but recommended) with ansible installed. The install documention
-  [bootstrap script](https://docs.rackspacecloud.com/genestack-getting-started/) takes create of creating the python venv and
+  [bootstrap script](https://docs.rackspacecloud.com/genestack-getting-started/) takes care of creating the python venv and
   installing the required versions of **ansible** and **openstack.cloud** ansible collection. The versions which are installed
   by bootstrap script in this example:
   ```shell
@@ -57,7 +57,7 @@ creating resources on flex cloud using ansible modules.
 
 # Creating a project, user and a flavor in flex cloud
 
-  This purpose of this step is create a project and a user in flex cloud; We will be creating resources with the credentials of this
+  The purpose of this step is create a project and a user in flex cloud; We will be creating resources with the credentials of this
   user in flex cloud. Users in member role can't create flavors. It should be noted that this is an admin only action and will 
   require admin credentials:
   ```shell
@@ -133,7 +133,7 @@ creating resources on flex cloud using ansible modules.
   export OS_IDENTITY_API_VERSION=3
   ```
   notice that these are credentials for the user we created along with other variables like domain name for user and project
-  and the keystone auth url (public endpoint). These file will need to be sourced to create the resources with ansible
+  and the keystone auth url (public endpoint). This file will need to be sourced to create the resources with ansible
 
 # Creating the required file for ansible variables
 
