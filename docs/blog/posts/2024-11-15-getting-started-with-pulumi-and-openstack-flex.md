@@ -324,12 +324,13 @@ Run the following commands:
 
 Set your public key for the current `dev` stack:
 ```bash
-pulumi config set ssh_public_key $(cat ~/.ssh/id_ed25519.pub)
+pulumi config set ssh_public_key "$(cat ~/.ssh/id_ed25519.pub)"
 pulumi config set ext_net_name PUBLICNET
+pulumi config set  pulumi-openstack-flex-demo:bastion_server_flavor mo.0.2.16
 ```
 !!! note
 
-    Replace with your public ssh key and your External network Name if it's something different.
+    Replace with your public ssh key, your External network Name and the flavor name if it's something different.
 
 Preview the Changes:
 ```bash
