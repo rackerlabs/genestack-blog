@@ -1,5 +1,5 @@
 ---
-date: 2024-01-08
+date: 2025-01-08
 title: Create Octavia Loadbalancers dynamically with Kubernetes and Openstack Cloud Controller Manager
 authors:
   - mikeruu
@@ -12,7 +12,7 @@ categories:
 
 ![octavia](assets/images/2025-01-08/octavia_logo.webp){ align=left : style="max-width:150px;background-color:rgb(28 144 243);" }
 
-Load Balancers are essential in Kubernetes for exposing services to users in a cloud native way by distributing network traffic across multiple nodes, ensuring high availability, fault tolerance, and optimal performance for applications. 
+Load Balancers are essential in Kubernetes for exposing services to users in a cloud native way by distributing network traffic across multiple nodes, ensuring high availability, fault tolerance, and optimal performance for applications.
 
 By integrating with OpenStack’s Load Balancer as a Service (LBaaS) solutions like Octavia, Kubernetes can automate the creation and management of these critical resources with the use of the Openstack Cloud Controller Manager. The controller will identify services of type `LoadBalancer` and will automagically create cloud Loadbalancers on Openstack Flex with the Kubernetes nodes as members.
 
