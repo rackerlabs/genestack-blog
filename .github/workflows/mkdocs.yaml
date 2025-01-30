@@ -30,7 +30,7 @@ jobs:
           python-version: 3.x
       - run: pip install -r requirements.txt
       - run: mkdocs build
-      - uses: actions/upload-pages-artifact
+      - uses: actions/upload-pages-artifact@v3
         with:
           path: site/
 
@@ -56,4 +56,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v2
+        uses: actions/deploy-pages@v4
