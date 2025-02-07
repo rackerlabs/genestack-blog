@@ -22,9 +22,12 @@ This guide is intended for **system administrators, developers, and cloud engine
 Before proceeding, ensure you have:
 
 - **Ubuntu 24** instance deployed on Rackspace Flex Cloud
+- **Floating IP** assigned to the instance
 - **SSH access** to the instance
 - **sudo privileges** on the server
 - **Security Group rules** allowing traffic on necessary ports (15758|888|80|443|20|21)
+
+If you're unsure of how to set this up, see our Getting Started guide here: https://docs.rackspace.com/docs/accessing-rackspace-flex-cloud
 
 By the end of this guide, you will have a fully functional **aaPanel installation** on your OpenStack-based Ubuntu 24 instance, ready for web hosting and server management.
 
