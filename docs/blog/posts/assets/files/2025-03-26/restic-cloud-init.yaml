@@ -1,0 +1,75 @@
+#cloud-config
+packages:
+  # Installing wget, if needed, to download the latest Restic binary
+  - curl
+  - wget
+  - bzip2
+  - jq
+
+bootcmd:
+  - mkdir -p /etc/systemd/system
+  - mkdir -p /usr/local/bin
+  - mkdir -p /etc/restic
+
+write_files:
+  - path: /etc/systemd/system/restic-backup.service
+    owner: root:root
+    permissions: 0o600
+    content: |
+      [Unit]
+      Description=Run Restic Backup
+      [Service]
+      Type=oneshot
+      EnvironmentFile=/etc/restic/restic.env
+      ExecStart=/usr/local/bin/restic backup /home --verbose --exclude-file=/etc/restic/restic.exclude
+      # If you have a separate excludes file, create /etc/restic.exclude with each pattern on a new line.
+      # Optionally, run a prune or check here after backups:
+      # ExecStartPost=/usr/local/bin/restic forget --prune --keep-daily 7
+      # ExecStartPost=/usr/local/bin/restic check
+  - path: /etc/systemd/system/restic-backup.timer
+    owner: root:root
+    permissions: 0o600
+    content: |
+      [Unit]
+      Description=Run Restic backup every 12 hours
+
+      [Timer]
+      OnBootSec=15min
+      OnUnitActiveSec=12h
+      Unit=restic-backup.service
+
+      [Install]
+      WantedBy=multi-user.target
+  - path: /etc/restic/restic.env
+    owner: root:root
+    permissions: 0o600
+    content: |
+      # Swift environment variables
+      OS_AUTH_URL="https://keystone.api.sjc3.rackspacecloud.com/v3"
+      OS_APPLICATION_CREDENTIAL_ID="<YOUR_APP_CRED_ID>"
+      OS_APPLICATION_CREDENTIAL_SECRET="<YOUR_APP_CRED_SECRET>"
+      # Restic encryption password
+      RESTIC_PASSWORD="<SUPER_SECURE_PASSWORD>"
+  - path: /etc/restic/restic.exclude
+    owner: root:root
+    permissions: 0o600
+    content: ""
+  - path: /etc/restic/restic.exclude
+    owner: root:root
+    permissions: 0o600
+    content: ""
+
+runcmd:
+  - >
+    grep -q RESTIC_REPOSITORY /etc/restic/restic.env ||
+    echo "RESTIC_REPOSITORY='swift:restic:/$(curl -s http://169.254.169.254/openstack/latest/meta_data.json | jq -r .uuid)'" |
+    tee -a /etc/restic/restic.env
+  - wget https://github.com/restic/restic/releases/download/v0.17.3/restic_0.17.3_linux_amd64.bz2 -O /tmp/restic.bz2
+  - bzip2 -d /tmp/restic.bz2
+  - mv /tmp/restic /usr/local/bin/restic
+  - chmod +x /usr/local/bin/restic
+  - if /usr/sbin/getenforce; then chcon -R -t bin_t /usr/local/bin; fi
+  - systemctl daemon-reload
+  - bash -c "export $(grep -v '^#' /etc/restic/restic.env | xargs) && /usr/local/bin/restic init"
+  - systemctl enable --now restic-backup.timer
+  - systemctl start restic-backup.service
