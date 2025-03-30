@@ -39,7 +39,7 @@ Here’s what you’ll accomplish:
 
 ## High-Level Workflow Overview
 
-Below is an example **Mermaid** sequence diagram that illustrates the high-level workflow of how Restic operates with Swift as the storage backend. You can embed this code (between triple backticks) in a Markdown file or a platform that supports Mermaid to visualize the diagram.
+Below is an example diagram that illustrates the high-level workflow of how Restic operates with Swift as the storage backend.
 
 ``` mermaid
 sequenceDiagram
@@ -104,25 +104,56 @@ openstack --os-cloud default application credential create \
           --restricted \
           --role creator \
           --role reader \
+          --description "Restic APP Creds" \
+          --access-rules '[
+            {"path": "/**", "service": "object-store", "method": "GET"},
+            {"path": "/**", "service": "object-store", "method": "HEAD"},
+            {"path": "/**", "service": "object-store", "method": "POST"},
+            {"path": "/**", "service": "object-store", "method": "PUT"},
+            {"path": "/**", "service": "object-store", "method": "DELETE"}
+          ]' \
           restic
 ```
 
 !!! example "Application Credential Output"
 
     ``` shell
-    +--------------+----------------------------------------------------------------------------------------+
-    | Field        | Value                                                                                  |
-    +--------------+----------------------------------------------------------------------------------------+
-    | id           | 12312312312313123131231231231231                                                       |
-    | name         | restic                                                                                 |
-    | description  | None                                                                                   |
-    | project_id   | 12312312312312312313123123123132                                                       |
-    | roles        | creator reader                                                                         |
-    | unrestricted | False                                                                                  |
-    | access_rules | []                                                                                     |
-    | expires_at   | None                                                                                   |
-    | secret       | 12345678901234567890123456789012345678901234567890123456789012345678901234567890123456 |
-    +--------------+----------------------------------------------------------------------------------------+
+    +--------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+    | Field        | Value                                                                                                                                                                                                                    |
+    +--------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+    | id           | 12345678901234567890123456789012345678                                                                                                                                                                                   |
+    | name         | restic                                                                                                                                                                                                                   |
+    | description  | Restic APP Creds                                                                                                                                                                                                         |
+    | project_id   | 12345678901234567890123456789012                                                                                                                                                                                         |
+    | roles        | creator reader                                                                                                                                                                                                           |
+    | unrestricted | False                                                                                                                                                                                                                    |
+    | access_rules | [{'id': '09876543210987654321098765432109', 'service': 'object-store', 'path': '/**', 'method': 'GET'}, {'id': '09876543210987654321098765432109', 'service': 'object-store', 'path': '/**', 'method':                   |
+    |              | 'POST'}, {'id': '09876543210987654321098765432109', 'service': 'object-store', 'path': '/**', 'method': 'PUT'}, {'id': '09876543210987654321098765432109', 'service': 'object-store', 'path': '/**',                     |
+    |              | 'method': 'HEAD'}, {'id': '09876543210987654321098765432109', 'service': 'object-store', 'path': '/**', 'method': 'DELETE'}]                                                                                             |
+    | expires_at   | None                                                                                                                                                                                                                     |
+    | secret       | 12345678901234567890123456789012345678901234567890123456789012345678901234567890123456                                                                                                                                   |
+    +--------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+    ```
+
+#### Increase Backup Security
+
+In the above application credentials command, the example `access-rules` ensures credentials are only valid with the `object-store` service. This is a good start, but users can further increase security by eliminating the `DELETE` method, which prevents any client from deleting objects from the store. Removing the `DELETE` method does limit some of the Restic client capabilities, but doing so ensures that the client can not be used to destory backups; which is generally good practice.
+
+!!! example "limited access rules"
+
+    ``` shell
+    openstack --os-cloud default application credential create \
+            --restricted \
+            --role creator \
+            --role reader \
+            --description "Restic APP Creds, Add only." \
+            --access-rules '[
+                {"path": "/**", "service": "object-store", "method": "GET"},
+                {"path": "/**", "service": "object-store", "method": "HEAD"},
+                {"path": "/**", "service": "object-store", "method": "POST"},
+                {"path": "/**", "service": "object-store", "method": "PUT"}
+            ]' \
+            restic-add-only
     ```
 
 ### The Cloud-init Script
