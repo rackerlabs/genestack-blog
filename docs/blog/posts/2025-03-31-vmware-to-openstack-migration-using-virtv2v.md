@@ -8,7 +8,6 @@ description: >
 categories:
   - virt-v2v
   - openstack
-  - migration
 ---
 
 # VMware to OpenStack Migration using virt-v2v
