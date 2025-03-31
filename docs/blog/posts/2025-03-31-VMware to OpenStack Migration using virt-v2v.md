@@ -1,11 +1,11 @@
 ---
-Date: 2025-03-31
-Title: VMware to OpenStack Migration using virt-v2v
-Authors:
+date: 2025-03-31
+title: VMware to OpenStack Migration using virt-v2v
+authors:
   - pram0596
-Description: >
+description: >
   Migrate a virtual machine from VMware to OpenStack using vpx.
-Categories:
+categories:
   - virt-v2v
   - openstack
   - migration
