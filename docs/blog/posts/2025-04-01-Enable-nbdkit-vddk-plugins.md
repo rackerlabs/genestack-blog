@@ -15,59 +15,59 @@ categories:
  
 This document describes the path to build and install vddk plugins for nbdkit which is required to migrate a virtual machine from VMware to OpenStack using vpx. Please keep in mind that it requires VMware proprietary library that you must download yourself.  
 
-## Pre-requisite:  
-+ One should have account to Broadcom developer site to download library.  
+## Reference Docs  
+[nbdkit VMware vddk plugins guide](https://libguestfs.org/nbdkit-vddk-plugin.1.html)  
+[Broadcom developer portal](https://developer.broadcom.com/sdks/vmware-virtual-disk-development-kit-vddk/latest)  
+[vddk program guide](https://docs.vmware.com/en/VMware-vSphere/8.0/vsphere-vddk-programming-guide/GUID-158D8330-7C9C-4F9C-83E1-4DC154DA3C66.html)  
 
-## Environment:  
-+ **virt-v2v Virtual appliance** - `192.168.11.11`  
+## Pre-requisite  
++ You should have account to Broadcom developer site to download library.  
 
-## Reference Docs:  
-https://libguestfs.org/nbdkit-vddk-plugin.1.html  
-https://developer.broadcom.com/sdks/vmware-virtual-disk-development-kit-vddk/latest  
-https://docs.vmware.com/en/VMware-vSphere/8.0/vsphere-vddk-programming-guide/GUID-158D8330-7C9C-4F9C-83E1-4DC154DA3C66.html  
+## Environment  
+Kindly refer below details which is used in this documentation. IPs/FQDN and Openstack properties can be different in your environment.  
 
-## Steps:   
++ **virt-v2v Virtual appliance** - `192.168.11.11`    
+
+## Steps   
 We can divide the whole procedure into two parts. First would be to build and install vddk plugins for nbdkit and second would be to download and use VMware vddk library.
 
-### Build and Install vddk plugins:  
-+ #### Login to virt-v2v appliance.  
-#### On controller node:    
+### Build and Install vddk plugins  
+Follow below steps to build and configure vddk plugins  
+#### Login to virt-v2v appliance  
+**On controller node**  
 ```shell
 ssh -i ~/.ssh/rpc_support ubuntu@192.168.11.11  
 sudo -i  
 ```  
 
-+ #### Download vddk code from git repository.
-#### On virtual appliance:
+#### Download vddk source code 
+Download vddk code from git repository.
+**On virtual appliance:**  
 ```shell 
 git clone https://github.com/libguestfs/nbdkit.git
 ```  
-+ #### Run below commands to install required packages and vddk plugins.
-#### On virtual appliance:
+#### Install packages and vddk plugins
+Run below commands to install required packages and vddk plugins.
+**On virtual appliance:**
 ```shell
 sudo apt-get install libtool
 apt install pkg-config m4 libtool automake autoconf
 cd nbdkit/
-```
-```shell
 autoreconf -i
 ./configure --disable-dependency-tracking
-```
-```shell
 apt install make 
 make
 make install
-```
-```shell
 cp /usr/local/lib/nbdkit/plugins/nbdkit-vddk-plugin.so \
    /usr/lib/x86_64-linux-gnu/nbdkit/plugins/  
 ```
-+ #### Check if vddk plugins has been installed successfully.  
-#### On virtual appliance:  
+#### Verify vddk plugins
+Check and verify if vddk plugins has been installed successfully.  
+**On virtual appliance:**  
 ```shell
 nbdkit vddk libdir=/usr/local/lib/nbdkit/plugins/ --dump-plugin  
 ```
-#### Example output:
+**Example output**
 ```shell
 path=/usr/local/lib/nbdkit/plugins/nbdkit-vddk-plugin.so
 name=vddk
@@ -100,18 +100,18 @@ has_extents=1
 vddk_default_libdir=/usr/local/lib/vmware-vix-disklib
 vddk_has_nfchostport=1
 ```  
-+ #### Download and place VMware vddk library:  
+### Download and place VMware vddk library  
+Follow below steps to use VMware vddk library
+#### Download vddk library
 Login to Broadcom web link https://developer.broadcom.com/sdks/vmware-virtual-disk-development-kit-vddk/latest and download zip file. Place it under /tmp/ on virt-v2v appliance. In my case I downloaded the latest version which is `8.0.3`.
 
-+ #### Move tar file under /opt and extract it.
+#### Move tar file under /opt and extract it
 ```shell
 ls -l /tmp/VMware-vix-disklib-8.0.0-20521017.x86_64.tar.gz
 mv /tmp/VMware-vix-disklib-8.0.0-20521017.x86_64.tar.gz /opt/
-```
-```shell
 cd /opt
 tar xvzf VMware-vix-disklib-8.0.0-20521017.x86_64.tar.gz 
 cd vmware-vix-disklib-distrib/
 ls
 ```
-+ #### Appliance is ready to migrate the vm using vddk plugins now.
+Appliance is ready to migrate VM using vddk plugins now. Refer [Coming soon...](Link) to use vddk plugins for migration.
