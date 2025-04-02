@@ -13,35 +13,39 @@ categories:
 
 # VMware to OpenStack Migration using virt-v2v  
 
-#### This document describes the path to migrate a virtual machine from VMware to OpenStack using virt-v2v vpx. You should use vddk plugins to make this process fast for which link is mentioned in the doc.  
+This document describes the path to migrate a virtual machine from VMware to OpenStack using virt-v2v vpx. You should use vddk plugins to make this process fast for which link is mentioned in the doc.  
 
-#### I used OpenStack volume on the destination cloud however one can select glance or local basis upon their used cases.
+I used OpenStack volume on the destination cloud however one can select glance or local basis upon their used cases.
 
-## Pre-requisite:  
+## Pre-requisite  
 + Port `5000` should connect from v2v appliance to OpenStack keystone endpoint.  
 + Ports `443,5480` should connect from v2v appliance to VMware vCenter and Esxi hosts.  
-+ DNS should resolve the VMware hostnames inside the v2v virtual appliance.  
++ DNS should resolve the VMware `hostnames` FQDN inside v2v virtual appliance.  
 
-## Environment:  
+## Additional Pre-requisite for Windows VMs  
+For windows VM migration we need to complete one time additional pre-requites on v2v virtual appliance mentioned on the below link.  
+
+[Coming soon…](Link)  
+
+## Enable vddk plugins  
+vddk plugins uses VMware sdk which enables addtional functionalities to be used for the migration. You are required to enable vddk plugins to use them explicitly using link mentioned below.  
+
+[Coming soon…](Link)  
+
+## Environment  
+
+Kindly refer below details which is used in this documentation. These IPs, FQDN and Openstack properties can be different in your environment.  
+
 + **VMware Cloud** - `demo-vmware-cloud.com`  
-+ **OpenStack Cloud keystone public endpoint** - `192.168.10.11`  
-+ **virt-v2v Virtual appliance** - `192.168.11.11`  
++ **OpenStack Cloud keystone public endpoint** - `192.168.10.11`    
++ **virt-v2v Virtual appliance** - `192.168.11.11`    
 
-<!-- more -->
+## Steps  
 
-#### For windows VM migration we need to complete one time additional pre-requites on v2v virtual appliance mentioned on the below link.  
+### Create v2v appliance  
+Run below command on destination OpenStack cloud. Make sure that you have already created the required `tenant network`, `image`, `flavor`, `security-group` and `keypair`.  Your `tenant network` must reach out to VMware cloud on the ports mentioned above.
 
-Coming soon…
-
-#### If you want to use vddk plugins then you need to enable those explicitly using link mentioned below.  
-
-Coming soon…
-
-## Steps:  
-
-+ ### Create v2v appliance for migration on destination OpenStack Cloud.  
-
-#### On Controller node  
+**On Controller node**  
 ```shell
 openstack server create --network NET01 \
                         --image ubuntu24 \
@@ -49,17 +53,19 @@ openstack server create --network NET01 \
                         --security-group mig-testing \
                         --key-name key01 virt-v2v-appl  
 ```
+Check if appliance instance has been created and in `ACTIVE` state.
 ```bash  
 openstack server list  
 ```
 
-+ ### Login to the created virtual appliance and install required package.  
-
-#### On Controller node  
+### Install required package on appliance  
+Login to the appliance creted. You will require `key` associated with `keypair` used to create the appliance. Here I am using `key01` to login which is saved under my home directory.
+**On Controller node**  
 ```shell
-ssh -i .ssh/key01ubuntu@192.168.11.11  
+ssh -i ~/.ssh/key01 ubuntu@192.168.11.11  
 ```
-#### On virt-v2v Appliance  
+Execute below commands to install the required packages.
+**On virt-v2v Appliance**  
 ```bash
 sudo -i  
 apt-get update  
@@ -71,33 +77,35 @@ apt-get install python3-openstackclient -y
 apt install libvirt-clients -y  
 ```
 
-+ ### Check if required ports are opened.  
-
-#### On virt-v2v Appliance  
+### Verify required ports are opened  
+Make sure that you can reach on the specified ports from appliance to `VMware` and `OpenStack` cloud.
+**On virt-v2v Appliance**  
 ```shell
 nc -vz 192.168.10.11 5000  
 nc -vz demo-vmware-cloud.com 443  
 nc -vz demo-vmware-cloud.com 5480  
 ```
 
-+ ### Copy ca certificate from controller node to virtual appliance.  
-
-#### On Controller node  
+### Copy ca certificate  
+You must need to copy `ca certificate` from `controller` to `appliance`.
+**On Controller node**  
 ```shell
-scp -i ~/.ssh/key01/etc/ssl/certs/ca-certificates.crt ubuntu@192.168.11.11:/tmp/  
+scp -i ~/.ssh/key01 /etc/ssl/certs/ca-certificates.crt ubuntu@192.168.11.11:/tmp/  
+ssh -i ~/.ssh/key01 ubuntu@192.168.11.11  
 ```
 
-+ ### Move ca certificate under certs directory.  
-
-#### On virt-v2v Appliance  
+### Move ca certificate 
+Move ca certificate from `/tmp` directory to `/etc/ssl/certs`
+**On virt-v2v Appliance**  
 ```shell
-ssh -i ~/.ssh/key01ubuntu@192.168.11.11  
+sudo -i
 mv /tmp/ca-certificates.crt /etc/ssl/certs/  
 ```
 
-+ ### Update bashrc file on virtual appliance to update common OpenStack env variables to connect to destination OpenStack Cloud.  
+### Create bashrc on appliance
+Create bashrc file on virtual appliance to update common OpenStack env variables to connect to destination OpenStack Cloud.  You can take reference of your exisitng openrc file from OpenStack cloud.
 
-#### On virt-v2v Appliance  
+**On virt-v2v Appliance**  
 ```shell
 vim /root/.bashrc  
 # COMMON OPENSTACK ENVS  
@@ -116,27 +124,30 @@ export OS_IDENTITY_API_VERSION=3
 export OS_AUTH_VERSION=3  
 export OS_CACERT=/etc/ssl/certs/ca-certificates.crt  
 ```
+Source `.bashrc` file created and run OpenStack command to check if appliance can talk to OpenStack apis.
 ```shell  
 source /root/.bashrc  
 openstack server list  
 ```
 
-+ ### Run below command to list guests from source VMware cloud. VPX link can be created using below settings.  
+### List hosted virtual machines
+Run below command to list guests from source VMware cloud. VPX link can be created using below settings.  
 `vpx://vcenter.fqdn/datacentername/clustername/hypervisorname?no_verify=1`
 
 no_verify value could be `0` or `1`. If value is `1` it means that SSL verification would be disabled.  
 
-#### On virt-v2v Appliance  
+**On virt-v2v Appliance**  
 ```shell
 virsh -c 'vpx://demo-vmware-cloud.com/DC1/DC1-Cluster-02/demo-hyp1-cloud.com?no_verify=1' list --all  
 ```
+Provide existing VMware `username` and `password`
 ```shell
 Enter username for demo-vmware-cloud.com [administrator@vsphere.local]: domain\user-id  
 Enter Domain\user-id's password for demo-vmware-cloud.com:  
 ``` 
-The command should return hosted vitual machine on particular VMware hypervisor.  
+The command should return hosted vitual machine on particular VMware hypervisor mentioned in vpx link.  
 
-#### Example output:   
+Example output:   
 ```shell
 Id      Name                                        State
 -----------------------------------------------------------------
@@ -148,15 +159,16 @@ Id      Name                                        State
 7018    demo2                                       running  
 ```
 
-+ ### Run below command to move disk from source and upload to OpenStack volume. Before executing the command make sure that VM is in shutdown state.  
+### Migrate disk
+Run below command to move disk from source cloud and upload to OpenStack volume. Before executing the command make sure guest VM is in shutdown state on VMware.  
 
-#### In the command:  
+In the command:  
 `ubuntu20-mig` - Guest VM name on VMware cloud to be migrated  
 `password.txt` - Password file created for the VMware domain user on v2v virtual appliance  
 `verify-server-certificate=false`  
-`server-id` - virt-v2v virtual appliance id running on OpenStack
+`server-id` - virt-v2v virtual appliance id running on OpenStack  
 
-#### On virt-v2v Appliance
+**On virt-v2v Appliance**
 ```shell
 virt-v2v -ic 'vpx://user-id@demo-vmware-cloud.com/DC1/DC1-Cluster-02/demo-hyp1-cloud.com?no_verify=1' \
              ubuntu20-mig \
@@ -164,9 +176,9 @@ virt-v2v -ic 'vpx://user-id@demo-vmware-cloud.com/DC1/DC1-Cluster-02/demo-hyp1-c
              -oo verify-server-certificate=false \
              -oo server-id='45dgftbbfddr6784fhskkei8v8483k' 
 ```  
-Once the command is executed it will capture the snapshot of the Virtual Machine and followed by data copy from VMware Datastore to Openstack Volume. The number of the OpenStack Volume created on the destination would be propotional to the number of disks attached on the Virtual Machine on source while performing migration.
+Once the command is executed it will capture the snapshot of the Virtual Machine and followed by data copy from VMware Datastore to Openstack Volume. The number of the OpenStack Volume created on the destination would be propotional to the number of disks attached on the Virtual Machine on source while performing migration.  
 
-#### Example output:
+Example output:
 ```shell 
 [   0.0] Setting up the source: -i libvirt -ic vpx://user-id@demo-vmware-cloud.com/DC1/DC1-Cluster-02/demo-hyp1-cloud.com?no_verify=1 ubuntu20-mig
 [   6.5] Opening the source
@@ -188,17 +200,18 @@ virt-v2v: This guest requires UEFI on the target to boot.
 [3475.6] Finishing off
 ```
 
-+ ### If you want to use vddk plugins then execute the steps mentioned in below link and come back here for further steps to be executed.  
+If you want to use vddk plugins then execute the steps mentioned in below link and come back here for further steps to be executed.  
 
-Coming soon…
+[Coming soon…](Link)
 
-+ ### You will see an OpenStack volume created on destination OpenStack Cloud.  
+### Verify migrated disk  
+Once disk migration is successful, you will see OpenStack volume created on destination.  
 
-#### On virt-v2v Appliance  
+**On virt-v2v Appliance**  
 ```shell
 openstack volume show rfhyr4565-jj8884j-46d9vj-jjkkrmmchd --fit 
 ```
-#### Example output:  
+Example output:  
 ```shell 
 +--------------------------------+----------------------------------------------------------------------------------------------------------------------------------+
 | Field                          | Value                                                                                                                            |
@@ -234,18 +247,20 @@ openstack volume show rfhyr4565-jj8884j-46d9vj-jjkkrmmchd --fit
 +--------------------------------+----------------------------------------------------------------------------------------------------------------------------------+
 ```
 
-+ ### If source VM has uefi firmware set with secure boot enabled then you need to set boot flag on OpenStack volume additionally.  
+### Set additional flags on Volume
+If source VM has `uefi` firmware set with `secure boot` enabled then you need to set boot `flag` on OpenStack volume additionally.  
 
-#### On virt-v2v Appliance  
+**On virt-v2v Appliance**  
 ```shell
 openstack volume set --property os_secure_boot=required rfhyr4565-jj8884j-46d9vj-jjkkrmmchd  
 ```
+Check if flag is set on the volume.  
 ```shell
 openstack volume show rfhyr4565-jj8884j-46d9vj-jjkkrmmchd --fit
 ```  
 The volume property should show `'os_secure_boot=required'` flag on it.  
 
-#### Example output:  
+Example output:  
 ```shell
 +--------------------------------+----------------------------------------------------------------------------------------------------------------------------------+
 | Field                          | Value                                                                                                                            |
@@ -281,9 +296,10 @@ The volume property should show `'os_secure_boot=required'` flag on it.
 +--------------------------------+----------------------------------------------------------------------------------------------------------------------------------+
 ```
 
-+ ### Create a new instance using the migrated volume.  
+### Create instance with volume
+Create new instance using migrated volume.  I used `NET02` as a production tenant network. You can choose `flavor`, `security-group`, `keypair` and `network` basis upon your environment. `volume` must the `name/id` of the migrated volume created.
 
-#### On virt-v2v Appliance  
+**On virt-v2v Appliance**  
 
 ```shell
 openstack server create --network NET02 \
@@ -293,7 +309,7 @@ openstack server create --network NET02 \
                         --volume rfhyr4565-jj8884j-46d9vj-jjkkrmmchd \
                         ubuntu20-mig 
 ```  
-#### Example output:  
+Example output:  
 ```shell
 +--------------------------------------+-------------------------------------------------+
 | Field                                | Value                                           |
@@ -330,24 +346,26 @@ openstack server create --network NET02 \
 | user_id                              | hhfh4i892hjhh5824dkjhaafop49999845jhddg                |
 +--------------------------------------+-------------------------------------------------+
 ```
+Check if instance is created successfully.
 ```bash
 openstack server list  
+openstack server show 55357fdr-7543-3224-84g3-kkjf677493kkhd --fit  
 ```
-You should see instance created and in `ACTIVE` state.  
+You should see instance created and in `ACTIVE/RUNNING` state.  
 
-#### Example output:
+Example output:
 ```bash
 +--------------------------------------+-----------------------+--------+---------------------------+---------------------------------+-------------+
 | ID                                   | Name                  | Status | Networks                  | Image                           | Flavor      |
 +--------------------------------------+-----------------------+--------+---------------------------+---------------------------------+-------------+
 | 55357fdr-7543-3224-84g3-kkjf677493kkhd | ubuntu20-mig          | ACTIVE | NET02=10.240.20.24 | N/A (booted from volume)        | m1.small    |
 ```  
-Capture instance IP.  
+Capture instance IP and see if you can reach to it.
 
 ```shell
 ping 10.240.20.24
 ```
-#### Example output:  
+Example output:  
 ```shell  
 PING 10.240.20.24 (10.240.20.24) 56(84) bytes of data.
 64 bytes from 10.240.20.24: icmp_seq=1 ttl=64 time=3.59 ms
@@ -358,31 +376,34 @@ PING 10.240.20.24 (10.240.20.24) 56(84) bytes of data.
 rtt min/avg/max/mdev = 1.079/2.334/3.590/1.255 ms
 ```
 
-+ ### Login to the VM with existing username created on source cloud. Move 99-installer.cfg to allow cloud-init to update the config and ssh keys.  
+### Login to instance
+Login to the instance with existing username created on source cloud. Move 99-installer.cfg to allow cloud-init to update config and ssh keys.  
 
-#### On virt-v2v Appliance  
+**On virt-v2v Appliance**  
 
-`user-id`: os username on the source cloud  
-
+`user-id`: existing VM username on the source cloud  
 ```shell
 ssh user-id@10.240.20.24
 ```
 
-#### On migrated Instance  
+**On migrated Instance**  
 ```shell
 mv /etc/cloud/cloud.cfg.d/99-installer.cfg /etc/cloud/cloud.cfg.d/99-installer.cfg.bak  
 reboot
 ```
 
-+ ### Now you will be able to login using default cloud username and ssh keys.  
+### Login using default user
+Now you will be able to login using default cloud username `ubuntu` and `ssh` keys.  
 
-#### On virt-v2v Appliance
+**On virt-v2v Appliance**
 ```shell
 ssh -i .ssh/key01 ubuntu@10.240.20.24
 ```
 
-+ ### Remove VMware Tools from the migrated instance.  
-#### On migrated Instance 
+### Uninstall VMware residuals  
+Execute below command to remove VMware Tools from the migrated instance.  
+
+**On migrated Instance** 
 ```shell
 apt-get remove --purge open-vm-tools
-```
+``` 
