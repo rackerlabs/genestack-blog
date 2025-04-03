@@ -51,17 +51,16 @@ You will see below output once you execute above command.
     verify return:1
     DONE
     sha1 Fingerprint=34:64:92:85:F5:6G:k3:C4:7E:8Y:2L:E2:F5:65:43:76:2A:A6:4H:3G
-    ```
-    ### Migrate virtual machine  
-    Below is the command syntax to migrate the virtual machine using vddk plugins.  
-    ```shell
-    virt-v2v -ic 'vpx://user@vCenter.example.com/datacenter/clustername/hypervisor_fqdn?no_verify=1' \  
-                -it vddk -io vddk-libdir=path_to_vmware_vddk_library \  
-                -io vddk-thumbprint=xx:xx:xx:xx:xx:xx.... guestname \  
-                -o openstack -ip password_file_for_user -oo verify-server-certificate=false \  
-                -oo server-id=virtual_appliance_UUID  
-    ```
-  
+    ```  
+### Migrate virtual machine  
+Below is the command syntax to migrate the virtual machine using vddk plugins.  
+```shell
+virt-v2v -ic 'vpx://user@vCenter.example.com/datacenter/clustername/hypervisor_fqdn?no_verify=1' \  
+            -it vddk -io vddk-libdir=path_to_vmware_vddk_library \  
+            -io vddk-thumbprint=xx:xx:xx:xx:xx:xx.... guestname \  
+            -o openstack -ip password_file_for_user -oo verify-server-certificate=false \  
+            -oo server-id=virtual_appliance_UUID  
+```
 Excute below command to perfrom the migaration.  
 
 **On v2v appliance**  
