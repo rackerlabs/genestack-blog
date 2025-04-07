@@ -12,7 +12,7 @@ categories:
 ---  
 # virt-v2v Windows VM migration pre-requisite  
 
-This document describes about the pre-requisites needed to complete a windows VM machine migration from VMware cloud to OpenStack. These are additional settings which you should enabled before performing a windows VM migration. If you don't complete it then you may see one of the below mentioned error while performing a windows VM migration. 
+This article explains the prerequisites for migrating a Windows VM 2019 from VMware cloud to OpenStack. These are additional parameters that need be enabled before completing a Windows VM migration. If you do not complete it, you may see following error while completing a Windows VM migration.  
 
 ```shell
 virt-v2v: error: One of rhsrvany.exe or pvvxsvc.exe is missing in /usr/share/virt-tools.
