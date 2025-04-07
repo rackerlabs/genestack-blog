@@ -10,9 +10,9 @@ categories:
   - openstack
   - migration
 ---  
-# virt-v2v Windows VM migration pre-requisite  
+# `virt-v2v` `Windows` VM migration pre-requisite  
 
-This article explains the prerequisites for migrating a Windows VM 2019 from VMware cloud to OpenStack. These are additional parameters that need be enabled before completing a Windows VM migration. If you do not complete it, you may see following error while completing a Windows VM migration.  
+This article explains the prerequisites for migrating a `Windows2019` VM from `VMware cloud` to `OpenStack`. These are additional requirements that needs to be setup before completing a `Windows` VM migration. If you do not complete it, you may see following error while completing a `Windows` VM migration.  
 
 ```shell
 virt-v2v: error: One of rhsrvany.exe or pvvxsvc.exe is missing in /usr/share/virt-tools.
@@ -21,7 +21,7 @@ You can get one by building rhsrvany (https://github.com/rwmjones/rhsrvany)
 ```  
 ## Pre-requisite  
 
-+ virt-v2v appliance must be configured as per [VMware to OpenStack Migration using virt-v2v](https://blog.rackspacecloud.com/blog/2025/04/01/vmware_to_openstack_migration_using_virt-v2v/)  
++ `virt-v2v` appliance must be configured as per [VMware to OpenStack Migration using virt-v2v](https://blog.rackspacecloud.com/blog/2025/04/01/vmware_to_openstack_migration_using_virt-v2v/)  
 
 ## Environment  
 
@@ -30,30 +30,30 @@ Kindly refer below details which is used in this documentation. IP can be differ
 + **virt-v2v Virtual appliance** - `192.168.11.11`  
 
 ## Steps  
-Perform all below listed steps on virtual appliance to confiure it to be able to migrate windows VM.  
+Perform all below listed steps on virtual appliance to confiure it to be able to migrate `windows` VM.  
 
 ### Download virtio iso image  
 
-Download virtio iso image on virtual appliance. virtio image version can differ for different windows OS flavor so please check virtio compatibility matrix before downloading.   
+Download `virtio` iso image on virtual appliance. `virtio` image version can differ for different `windows` OS flavor so please check `virtio` compatibility matrix before downloading. Here I am using version `0.1.248` which is compatible with `windows19`.   
 ```shell
 wget https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/archive-virtio/virtio-win-0.1.248-1/virtio-win-0.1.248.iso
 ```  
 
-### Mount downloaded image to /mnt directory  
+### Mount downloaded image to `/mnt` directory  
 
-Mount iso image to /mnt directory.  
+Mount iso image to `/mnt` directory.  
 ```shell
 mount virtio-win-0.1.248.iso /mnt
 ```
-### Create virtio-win directory  
+### Create `virtio-win` directory  
 
-Create virtio-win directory under /usr/share  
+Create `virtio-win` directory under `/usr/share`  
 ```shell
 mkdir /usr/share/virtio-win
 ```
 ### Copy image data  
 
-Switch to /mnt directory and copy data to /usr/share/virtio-win.  
+Switch to `/mnt` directory and copy data to `/usr/share/virtio-win`.  
 ```shell
 cd /mnt
 cp -rpv * /usr/share/virtio-win/
@@ -61,7 +61,7 @@ cd
 umount /mnt
 ls -l /usr/share/virtio-win/ 
 ```  
-Check if you can see below files under /usr/share/virtio-win/
+Check if you can see below files under `/usr/share/virtio-win/`
 
 !!! example "Example output"
 
@@ -96,7 +96,7 @@ Check if you can see below files under /usr/share/virtio-win/
     ```  
 ### Install additional packages  
 
-Run below commands to install few more packages needed for windows migration.
+Run below commands to install few more packages needed for `windows` migration.
 ```shell
 apt install -y rpm2cpio
 wget -nd -O srvany.rpm https://kojipkgs.fedoraproject.org//packages/mingw-srvany/1.1/4.fc38/noarch/mingw32-srvany-1.1-4.fc38.noarch.rpm
@@ -104,4 +104,4 @@ rpm2cpio srvany.rpm | cpio -idmv \
   && mkdir /usr/share/virt-tools \
   && mv ./usr/i686-w64-mingw32/sys-root/mingw/bin/*exe /usr/share/virt-tools/
 ```
-Appliance is ready to perform windows migration. Switch back to doc [VMware to OpenStack Migration using virt-v2v](https://blog.rackspacecloud.com/blog/2025/04/01/vmware_to_openstack_migration_using_virt-v2v/) for further steps to perform actual disk migration.       
+Appliance is ready to perform `windows` vm migration. Switch back to doc [VMware to OpenStack Migration using virt-v2v](https://blog.rackspacecloud.com/blog/2025/04/01/vmware_to_openstack_migration_using_virt-v2v/) for further steps to perform actual disk migration.  
