@@ -130,12 +130,12 @@ vddk_has_nfchostport=1
 
 ### Download and place VMware vddk library
 
-Follow below steps to use VMware vddk library
+Follow below steps to use VMware `vddk` library
 
 #### Download vddk library
 
-Login to Broadcom web link https://developer.broadcom.com/sdks/vmware-virtual-disk-development-kit-vddk/latest and download zip file.
-Place it under /tmp/ on virt-v2v appliance. In my case I downloaded the latest version which is `8.0.3`.
+Login to Broadcom web link `https://developer.broadcom.com/sdks/vmware-virtual-disk-development-kit-vddk/latest` and download zip file.
+Place it under `/tmp/` on virt-v2v appliance. In my case I downloaded the latest version which is `8.0.3`.
 
 #### Move tar file under /opt and extract it
 
@@ -148,4 +148,4 @@ cd vmware-vix-disklib-distrib/
 ls
 ```
 
-Appliance is ready to migrate VM using vddk plugins now. Refer [Coming soon...](Link) to use vddk plugins for migration.
+Appliance is ready to migrate VM using vddk plugins now. Refer [Use vddk plugins](https://blog.rackspacecloud.com/blog/2025/04/03/use_nbdkit_vddk_plugins_for_migration/) to use for migration.
