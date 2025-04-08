@@ -130,12 +130,12 @@ vddk_has_nfchostport=1
 
 ### Download and place VMware vddk library
 
-Follow below steps to use VMware vddk library
+Follow below steps to use VMware `vddk` library
 
 #### Download vddk library
 
-Login to Broadcom web link https://developer.broadcom.com/sdks/vmware-virtual-disk-development-kit-vddk/latest and download zip file.
-Place it under `/tmp/` on `virt-v2v` appliance. In my case I downloaded the latest version which is `8.0.3`.
+Login to Broadcom web [link](https://developer.broadcom.com/sdks/vmware-virtual-disk-development-kit-vddk/latest) and download zip file.
+Place it under `/tmp/` on virt-v2v appliance. In my case I downloaded the latest version which is `8.0.3`.
 
 #### Move tar file under `/opt` and extract it
 
