@@ -13,8 +13,8 @@ categories:
 
 # Enable nbdkit vddk plugins
 
-This document describes the path to build and install vddk plugins for nbdkit which is required to migrate a virtual machine from VMware
-to OpenStack using vpx. Please keep in mind that it requires VMware proprietary library that you must download yourself.
+This document describes the path to build and install vddk plugins for nbdkit which is required to migrate a virtual machine from `VMware`
+to `OpenStack` using vpx. Please keep in mind that it requires `VMware` proprietary library that you must download yourself.
 
 <!-- more -->
 
@@ -28,22 +28,22 @@ to OpenStack using vpx. Please keep in mind that it requires VMware proprietary 
 
 ## Pre-requisite
 
-You should have account to Broadcom developer site to download library.
+You should have account to `Broadcom developer` site to download library.
 
 ## Environment
 
-Kindly refer below details which is used in this documentation. IPs/FQDN and Openstack properties can be different in your environment.
+Kindly refer below details which is used in this documentation. `IPs/FQDN` and `Openstack` properties can be different in your environment.
 
 **virt-v2v Virtual appliance** - `192.168.11.11`
 
 ## Steps
 
-We can divide the whole procedure into two parts. First would be to build and install vddk plugins for nbdkit and second would be to download
-and use VMware vddk library.
+We can divide the whole procedure into two parts. First would be to build and install `vddk plugins` for `nbdkit` and second would be to download
+and use `VMware vddk` library.
 
 ### Build and Install vddk plugins
 
-Follow below steps to build and configure vddk plugins
+Follow below steps to build and configure `vddk plugins`
 
 #### Login to virt-v2v appliance
 
@@ -135,9 +135,9 @@ Follow below steps to use VMware vddk library
 #### Download vddk library
 
 Login to Broadcom web link https://developer.broadcom.com/sdks/vmware-virtual-disk-development-kit-vddk/latest and download zip file.
-Place it under /tmp/ on virt-v2v appliance. In my case I downloaded the latest version which is `8.0.3`.
+Place it under `/tmp/` on `virt-v2v` appliance. In my case I downloaded the latest version which is `8.0.3`.
 
-#### Move tar file under /opt and extract it
+#### Move tar file under `/opt` and extract it
 
 ``` shell
 ls -l /tmp/VMware-vix-disklib-8.0.0-20521017.x86_64.tar.gz
@@ -148,4 +148,4 @@ cd vmware-vix-disklib-distrib/
 ls
 ```
 
-Appliance is ready to migrate VM using vddk plugins now. Refer [Coming soon...](Link) to use vddk plugins for migration.
+Appliance is ready to migrate VM using `vddk` plugins now. Refer [Use vddk plugins](https://blog.rackspacecloud.com/blog/2025/04/03/use_nbdkit_vddk_plugins_for_migration/) for migration.
