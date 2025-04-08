@@ -30,13 +30,13 @@ I used OpenStack volume on the destination cloud however one can select glance o
 
 For windows VM migration we need to complete one time additional pre-requites on v2v virtual appliance mentioned on the below link.
 
-[Coming soon…](Link)
+[Windows VM migration pre-requisite](https://blog.rackspacecloud.com/blog/2025/04/07/virt-v2v_windows_vm_migration_pre-requisite/)
 
 ## Enable vddk plugins
 
 vddk plugins uses VMware sdk which enables addtional functionalities to be used for the migration. You are required to enable vddk plugins to use them explicitly using link mentioned below.
 
-[Coming soon…](Link)
+[Enable vddk plugins](https://blog.rackspacecloud.com/blog/2025/04/01/enable_nbdkit_vddk_plugins/)
 
 ## Environment
 
@@ -242,7 +242,7 @@ Once the command is executed it will capture the snapshot of the Virtual Machine
 
 If you want to use vddk plugins then execute the steps mentioned in below link and come back here for further steps to be executed.
 
-[Coming soon…](Link)
+[Use vddk plugins](https://blog.rackspacecloud.com/blog/2025/04/03/use_nbdkit_vddk_plugins_for_migration/)
 
 ### Verify migrated disk
 
