@@ -13,9 +13,14 @@ categories:
 
 # Getting Started with OpenTofu and OpenStack Flex
 
-OpenTofu is an infrastructure as code tool that lets you define both cloud and on-prem resources in human-readable configuration files that you can version, reuse, and share.
+OpenTofu is an infrastructure as code tool that lets you define both cloud and
+on-prem resources in human-readable configuration files that you can version,
+reuse, and share.
 
-We will demonstrate using OpenTofu to build a three node environment. The environment will consist bastion server to connect in via ssh, a webserver to serve web content and a database server. An OpenStack account with appropriate permissions will be needed to build the environment.
+We will demonstrate using OpenTofu to build a three node environment. The
+environment will consist bastion server to connect in via ssh, a webserver to
+serve web content and a database server. An OpenStack account with appropriate
+permissions will be needed to build the environment.
 
 <!-- more -->
 
