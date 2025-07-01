@@ -12,6 +12,7 @@ categories:
 # Getting Started With Rackspace OpenStack Flex
 
 We're now mid-way through 2024, and the Rackspace Public Cloud team has been hard at work building and delivering the successor to the Rackspace OpenStack Public Cloud (OSPC) first launched in 2012. As Limited Availability (LA) access to our latest multi-tenant OpenStack-based public cloud approaches and content begins to build up here on the blog, I thought it prudent to provide guidance on how one might onboard themselves and build resources on the platform.
+
 <!-- more -->
 
 Currently known as **OpenStack Flex**, this new multi-tenant cloud platform differs from our legacy OpenStack Public Cloud (OSPC) in many ways; most notably in its tenant-facing network architecture and adoption of KVM over Xenserver. Tenants have the flexibility to design their own network architecture within their virtual routing domain to create a more secure and performant environment. In addition, multiple storage backends will be available to handle workloads of all shapes and sizes. Have I mentioned **OpenStack** ***Flex*** is all about ***flexibility***?
@@ -130,11 +131,11 @@ Using the `openstack flavor list` command, we can see the following pre-defined 
 
 !!! note "Flavor sizing"
 
-    Certain operating systems may have minimum requirements, so be sure to check with the vendor to see which flavor is most appropriate without overprovisioning. Rackspace provides a fee schedule for flavors and other resources that can be used to generate a total cost for the instance or virtual environment. 
+    Certain operating systems may have minimum requirements, so be sure to check with the vendor to see which flavor is most appropriate without overprovisioning. Rackspace provides a fee schedule for flavors and other resources that can be used to generate a total cost for the instance or virtual environment.
 
 ## Networks
 
-In the Rackspace OpenStack Flex cloud, users within a project/tenant are now able to easily build a network architecture that consists of a virtual router at its core that is connected to an external *public* network and one or more internal *project/tenant* networks. Unlike the legacy OpenStack Public Cloud, instances utilize user-defined network address space and leverage SNAT and DNAT by default rather than be configured with public IPs directly. 
+In the Rackspace OpenStack Flex cloud, users within a project/tenant are now able to easily build a network architecture that consists of a virtual router at its core that is connected to an external *public* network and one or more internal *project/tenant* networks. Unlike the legacy OpenStack Public Cloud, instances utilize user-defined network address space and leverage SNAT and DNAT by default rather than be configured with public IPs directly.
 
 Self-service networking is made possible by the use of a network overlay. In the case of OpenStack Flex, the overlay technology is known as GENEVE. GENEVE differs from VXLAN by providing a larger header that can be used to describe additional characteristics about the network at a lower level than what is available to tenants, but from a user perspective there is no practical difference. Overlay networks aren't always compatible with all network technologies, such as multicast, so feel free to reach out to the Rackspace OpenStack Flex support team to discuss additional network options or workarounds that might be available.
 
@@ -159,7 +160,7 @@ The **external** side of a virtual router connects to a single external provider
 
 !!! info "A word about **PUBLICNET**"
 
-    The **PUBLICNET** external provider network is a *shared* network that can only be leveraged by virtual routers. Attempts to place virtual machine instances directly onto **PUBLICNET** should fail. 
+    The **PUBLICNET** external provider network is a *shared* network that can only be leveraged by virtual routers. Attempts to place virtual machine instances directly onto **PUBLICNET** should fail.
 
 The **internal** side of a virtual router connects to one of more networks defined within a project and created by a user of that project. Internal networks are traditionally connected to virtual machine instances. To list these internal networks, use the `openstack network list` command shown here:
 

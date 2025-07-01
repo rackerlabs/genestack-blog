@@ -12,6 +12,7 @@ categories:
 # What is Rackspace Public Cloud (Flex)?
 
 In 2006, before 'The Cloud' became a ubiquitous term, Rackspace launched one of the first utility-based computing services known as Mosso (later Rackspace Cloud). Move ahead to 2010, and you'll find Rackspace partnering with NASA to deliver the first release of OpenStack - a fully open-source and open standard cloud computing platform. In 2012, Rackspace launched the Rackspace Public Cloud based on OpenStack, and shortly thereafter began delivering private (hosted) clouds based on OpenStack. To say OpenStack runs through our veins is an understatement.
+
 <!-- more -->
 
 In 2024, the Rackspace Cloud team has been hard at work developing the next-generation multi-tenant Rackspace Public Cloud based on OpenStack, and I'm happy to share that the doors will be open in limited availability in coming weeks. In this blog, I'd like to take you through a journey into the architecture of Flex - the next-generation public cloud by Rackspace.

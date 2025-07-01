@@ -18,11 +18,9 @@ categories:
 
 Pulumi is an open-source infrastructure-as-code (IaC) platform that enables you to define, deploy, and manage cloud infrastructure using familiar programming languages like Python, JavaScript, TypeScript, Go, and C#. By leveraging your existing coding skills and knowledge, Pulumi allows you to build, deploy, and manage infrastructure on any cloud provider, including AWS, Azure, Google Cloud, Kubernetes, and OpenStack. Unlike traditional tools that rely on YAML files or domain-specific languages, Pulumi offers a modern approach by utilizing general-purpose programming languages for greater flexibility and expressiveness. This means you can use standard programming constructs—such as loops, conditionals, and functions—to create complex infrastructure deployments efficiently.
 
-
 <!-- more -->
 
-
-Infrastructure as Code (IaC) has revolutionized the way we manage and deploy cloud resources. Pulumi, a modern IaC tool, allows you to define cloud infrastructure using familiar programming languages. When combined with OpenStack, an open-source cloud computing platform, you gain unparalleled flexibility and control over your cloud environments. In this guide, we'll walk you through getting started with Pulumi and OpenStack. We will do so by creating an secure entry point (bastion server) and exposing securely by only allowing access to the server via ssh. 
+Infrastructure as Code (IaC) has revolutionized the way we manage and deploy cloud resources. Pulumi, a modern IaC tool, allows you to define cloud infrastructure using familiar programming languages. When combined with OpenStack, an open-source cloud computing platform, you gain unparalleled flexibility and control over your cloud environments. In this guide, we'll walk you through getting started with Pulumi and OpenStack. We will do so by creating an secure entry point (bastion server) and exposing securely by only allowing access to the server via ssh.
 
 ## Prerequisites
   - An OpenStack account with appropriate permissions.
@@ -147,7 +145,7 @@ Depending on your shell configuration it might show you that you are now utilizi
 ```bash
 which python
 ```
-This will return something like 
+This will return something like
 ```bash
 /home/debian/pulumi-openstack-flex-demo/venv/bin/python
 ```
@@ -170,9 +168,9 @@ Run `pip install -r requirements.txt` to install dependencies.
 Edit your `Pulumi.yaml` file and add the following:
 ```yaml
   openstack:cloud:
-    value: <replace with cloud> 
+    value: <replace with cloud>
 ```
-Make sure you replace with your cloud value. In my config my cloud is called rxt. 
+Make sure you replace with your cloud value. In my config my cloud is called rxt.
 The final file should look something like:
 ```
 name: pulumi-openstack-flex-demo

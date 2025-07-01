@@ -21,9 +21,7 @@ to `OpenStack` using vpx. Please keep in mind that it requires `VMware` propriet
 ## Reference Docs
 
 * [nbdkit VMware vddk plugins guide](https://libguestfs.org/nbdkit-vddk-plugin.1.html)
-
 * [Broadcom developer portal](https://developer.broadcom.com/sdks/vmware-virtual-disk-development-kit-vddk/latest)
-
 * [vddk program guide](https://docs.vmware.com/en/VMware-vSphere/8.0/vsphere-vddk-programming-guide/GUID-158D8330-7C9C-4F9C-83E1-4DC154DA3C66.html)
 
 ## Pre-requisite
@@ -93,40 +91,40 @@ Check and verify if vddk plugins has been installed successfully.
 nbdkit vddk libdir=/usr/local/lib/nbdkit/plugins/ --dump-plugin
 ```
 
-**Example output**
+!!! example "output"
 
-``` shell
-path=/usr/local/lib/nbdkit/plugins/nbdkit-vddk-plugin.so
-name=vddk
-version=1.33.11
-api_version=2
-struct_size=384
-max_thread_model=parallel
-thread_model=parallel
-errno_is_preserved=0
-magic_config_key=file
-has_longname=1
-has_unload=1
-has_dump_plugin=1
-has_config=1
-has_config_complete=1
-has_config_help=1
-has_get_ready=1
-has_after_fork=1
-has_open=1
-has_close=1
-has_get_size=1
-has_block_size=1
-has_can_flush=1
-has_can_extents=1
-has_can_fua=1
-has_pread=1
-has_pwrite=1
-has_flush=1
-has_extents=1
-vddk_default_libdir=/usr/local/lib/vmware-vix-disklib
-vddk_has_nfchostport=1
-```
+    ``` shell
+    path=/usr/local/lib/nbdkit/plugins/nbdkit-vddk-plugin.so
+    name=vddk
+    version=1.33.11
+    api_version=2
+    struct_size=384
+    max_thread_model=parallel
+    thread_model=parallel
+    errno_is_preserved=0
+    magic_config_key=file
+    has_longname=1
+    has_unload=1
+    has_dump_plugin=1
+    has_config=1
+    has_config_complete=1
+    has_config_help=1
+    has_get_ready=1
+    has_after_fork=1
+    has_open=1
+    has_close=1
+    has_get_size=1
+    has_block_size=1
+    has_can_flush=1
+    has_can_extents=1
+    has_can_fua=1
+    has_pread=1
+    has_pwrite=1
+    has_flush=1
+    has_extents=1
+    vddk_default_libdir=/usr/local/lib/vmware-vix-disklib
+    vddk_has_nfchostport=1
+    ```
 
 ### Download and place VMware vddk library
 

@@ -21,9 +21,6 @@ Talos is a modern operating system designed for Kubernetes, providing a secure a
 
 In this guide, we'll walk through setting up the necessary network infrastructure on OpenStack Flex using Pulumi and TypeScript, preparing the groundwork for running Talos.
 
-
-
-
 <!-- more -->
 
 In earlier blog posts, Kevin demonstrated how to manually create a [Kubernetes cluster using Talos](https://blog.rackspacecloud.com/blog/2024/11/04/running_talos_on_openstack_flex/). Around the same time, I was exploring Talos and Pulumi using the Python language. However, I've been looking for an opportunity to dive into TypeScript, so I decided to give it a try. I have to say, I really enjoyed using TypeScript. Perhaps I'll share more of my thoughts on it in a future post, but for now, I'll mention that enjoyed learning about Typescript and probably continue to use it to develop.
@@ -62,9 +59,9 @@ pnpm i @pulumiverse/talos
 Edit your `Pulumi.yaml` file and add the following:
 ```yaml
   openstack:cloud:
-    value: <replace with cloud> 
+    value: <replace with cloud>
 ```
-Make sure you replace with your cloud value. In my config my cloud is called rxt. 
+Make sure you replace with your cloud value. In my config my cloud is called rxt.
 The final file should look something like:
 ```yaml
 name: talos-cluster-ts
@@ -121,7 +118,7 @@ const extNet = pulumi.output(
     })
 );
 
-// create the public keypair 
+// create the public keypair
 const ssh_public_key = config.require("ssh_public_key");
 
 // Create a key pair for SSH access
@@ -509,7 +506,7 @@ With all resources defined, you can now deploy the infrastructure:
 pulumi up -y
 
 ```
-Pulumi will create the network, subnet, router, security groups, key pair, and instances in your OpenStack Flex environment. This should take less than 2 minutes. 
+Pulumi will create the network, subnet, router, security groups, key pair, and instances in your OpenStack Flex environment. This should take less than 2 minutes.
 
 ## Bootstraping the Talos cluster
 Once it has finished running execute the follwing commands to copy the talosconfig file to the bastion server and start the bootstrap process.
@@ -529,7 +526,7 @@ sleep 50
 talosctl --talosconfig ./talosconfig get members
 
 ssh debian@${BASTION} "talosctl --talosconfig talosconfig kubeconfig ~/.kube/config"
-ssh debian@${BASTION} "kubectl get nodes" 
+ssh debian@${BASTION} "kubectl get nodes"
 
 ```
 
