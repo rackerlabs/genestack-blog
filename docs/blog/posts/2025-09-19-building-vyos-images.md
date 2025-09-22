@@ -139,8 +139,9 @@ data = "datasource_list: [OpenStack]"
 EOF
 ```
 
-> [!NOTE]
-> While the `vyos` user is created as part of the build, no password is generated or supplied. Instead, an SSH key in the form of a keypair should be provided at server creation and will processed by cloud-init and added to the configuration.
+!!! note
+
+    While the `vyos` user is created as part of the build, no password is generated or supplied. Instead, an SSH key in the form of a keypair should be provided at server creation and will processed by cloud-init and added to the configuration.
 
 Lastly, run the build script:
 
@@ -185,8 +186,9 @@ Using the `openstack` client or Rackspace OpenStack Flex UI, upload the qcow2 im
   --disk-format qcow2 
 ```
 
-> [!NOTE]
-> The image will be built as the `root` user, so check the file permissions if you run into issues.
+!!! note
+
+    The image will be built as the `root` user, so check the file permissions if you run into issues.
 
 ## Deploying the VM
 
