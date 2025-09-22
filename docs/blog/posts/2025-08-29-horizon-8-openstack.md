@@ -16,7 +16,7 @@ categories:
 
 ![omnissa-horizon](assets/images/2025-08-29/omnissa-horizon.png){ align=left : style="max-width:125px" }
 
-With the recent introduction of manual pools and farms in Horizon 8, organizations can now leverage infrastructure platforms not natively supported for automated pool provisioning. This blog post details a real-world deployment using manual pools and farms running on OpenStack and was inspired by the blog post "[Horizon 8 with manual pools and farms – using alternative hypervisors](https://community.omnissa.com/technical-blog/horizon-8-with-manual-pools-and-farms-using-alternative-hypervisors-r144)," written by Omnissa, which introduced how their incredible VDI solution can be leveraged on non-proprietary platforms.
+By utiliizing manual pools and farms in Horizon 8, organizations can leverage infrastructure platforms not natively supported for automated pool provisioning. This blog post details a real-world deployment using manual pools and farms running on OpenStack and was inspired by the blog post "[Horizon 8 with manual pools and farms – using alternative hypervisors](https://community.omnissa.com/technical-blog/horizon-8-with-manual-pools-and-farms-using-alternative-hypervisors-r144)," written by Omnissa, which introduced how their incredible VDI solution can be leveraged on non-proprietary platforms.
 
 <!-- more -->
 
