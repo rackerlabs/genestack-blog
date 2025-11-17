@@ -16,6 +16,8 @@ categories:
 
 We detail how to build immutable, secure, and minimal Kubernetes clusters by combining Cluster API (CAPI) with TALOS OS. This powerful stack allows you to leverage the cloud-agnostic management capabilities of CAPI while benefiting from TALOS's minimal attack surface. Deploying on RackSpace OpenStack Flex grants you complete control over your underlying infrastructure, maximizing resource efficiency and providing a production-ready cloud-native environment. This integration simplifies day-2 operations and delivers enterprise-grade security for your private cloud.
 
+<!-- more -->
+
 ![capi-talos](assets/images/2025-10-27/capi-talos.png)
 
 ## Preparing the Management Cluster
@@ -151,7 +153,7 @@ clusterctl config repositories | egrep 'talos|openstack'
     ``` shell
     talos                   BootstrapProvider          https://github.com/siderolabs/cluster-api-bootstrap-provider-talos/releases/latest/               bootstrap-components.yaml
     talos                   ControlPlaneProvider       https://github.com/siderolabs/cluster-api-control-plane-provider-talos/releases/latest/           control-plane-components.yaml
-    openstack               InfrastructureProvider     https://github.com/kubernetes-sigs/cluster-api-provider-openstack/releases/latest/                infrastructure-components.yaml 
+    openstack               InfrastructureProvider     https://github.com/kubernetes-sigs/cluster-api-provider-openstack/releases/latest/                infrastructure-components.yaml
     ```
 
 ``` shell

@@ -17,6 +17,8 @@ categories:
 
 **Face it**: The modern DevOps world is all about speed, security, and not forgetting to have a healthy dose of cynicism about manual processes. Because manual is so last decade, am I right? This post proudly showcases how to use a **GitHub self-hosted runner** to spin up and smoke test a Genestack (OpenStack) deployment by Rackspace. If you don’t finish the entire process in under 20 minutes, you might as well go brew another pot of coffee, or question your life choices.
 
+<!-- more -->
+
 ## Overview
 
 The hyperconverged lab script and ephemeral container approach let you conjure up blazing-fast OpenStack deployments, so you can test and iterate faster than your boss can ask for a status update.

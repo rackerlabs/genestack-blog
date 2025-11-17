@@ -15,6 +15,7 @@ categories:
 # Building a VyOS image for use in Rackspace OpenStack Flex
 
 In the beginning there was Vyatta, a free software-based alternative to hardware-based routing products offered by network beheamoths like Cisco and Juniper. After being acquired by Brocade, development of Vyatta Core, the *community edition* of the product, began to languish until its abandonment shortly thereafter. VyOS formed from the ashes and has continued to build upon the core to deliver a highly-functional and highly-competitive routing platform.
+
 <!-- more -->
 
 VyOS is a recent Silver member of the OpenInfra Foundation, and more information about their fit in the ecosystem can be found here:
@@ -183,7 +184,7 @@ Using the `openstack` client or Rackspace OpenStack Flex UI, upload the qcow2 im
 ```
 # openstack image create vyos-1.5-rolling \
   --file vyos-1.5-rolling-202509191826-qcow2-amd64.qcow \
-  --disk-format qcow2 
+  --disk-format qcow2
 ```
 
 !!! note
