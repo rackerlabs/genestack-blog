@@ -17,7 +17,7 @@ categories:
 RackConnect® Global (RCG) is a software-defined, multi-cloud interconnection platform that links Rackspace Technology customers with other Rackspace data centers, third-party data centers, and third-party clouds through direct, private, low-latency, virtual connections. All traffic flowing between every endpoint avoids the public Internet and instead rides the Rackspace private backbone.
 
 Within OpenStack Flex, Rackspace's next-generation multi-tenant public cloud, RackConnect Global allows customers to connect their virtual machine instances to third-party datacenters or to dedicated (baremetal) server environments within Rackspace DCs. RackConnect Global can enable customers to leverage the elasticity of public cloud while utilizing dedicated hardware gateways and firewalls, or simply add routes to remote resources over the RCG link.
-
+<!-- more -->
 ## Connecting to a third-party or Rackspace dedicated environment
 
 RackConnect Global allows customers to connect their OpenStack Flex resources to third-party environments, including popular hyperscalers, as well as existing dedicated footprints in a Rackspace datacenter.
