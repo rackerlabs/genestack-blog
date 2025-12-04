@@ -209,7 +209,7 @@ Now that your GPU is working, let's tune it for actual compute work. These optim
 
 ### Enable Persistence Mode
 
-By default, the NVIDIA driver unloads when no applications are using the GPU. This saves power but adds several seconds of initialization latency when you start a new workload. Persistence mode keeps the driver loaded:
+By default, the NVIDIA driver unloads when no applications are using the GPU. This saves power but adds several seconds of initialization latency when you start a new workload. Persistence mode keeps the driver loaded.
 
 ```bash
 sudo nvidia-smi -pm 1
@@ -227,19 +227,36 @@ sudo nvidia-smi -c EXCLUSIVE_PROCESS
 
 NVIDIA GPUs dynamically scale their clock frequencies based on load, temperature, and power limits. For benchmarking or latency-sensitive workloads, you may want consistent performance. Lock the graphics clock to maximum:
 
+!!! note
+
+    The following values are specific for H100 GPUs. Check your specific GPU's capabilities with `nvidia-smi -q -d SUPPORTED_CLOCKS`.
+
+    !!! example "The output will look similar to this"
+
+        ```bash
+        Timestamp                                 : Thu Dec  1 23:00:53 2025
+        Driver Version                            : 580.105.08
+        CUDA Version                              : 13.0
+
+        Attached GPUs                             : 4
+        GPU 00000000:06:00.0
+            Supported Clocks
+                Memory                            : 2619 MHz
+                    Graphics                      : 1980 MHz
+                    ...
+        ```
+
+With the memory and graphics clock values identified, lock the graphics clock.
+
 ```bash
 sudo nvidia-smi -lgc 1980,1980  # H100 max graphics clock
 ```
 
-And lock the memory clock:
+Lock the memory clock.
 
 ```bash
 sudo nvidia-smi -lmc 2619,2619  # H100 HBM3 max
 ```
-
-!!! note
-
-    These specific values are for H100 GPUs. Check your specific GPU's capabilities with `nvidia-smi -q -d SUPPORTED_CLOCKS`.
 
 ### Disable ECC Memory
 
