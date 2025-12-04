@@ -249,14 +249,15 @@ H100 and A30 GPUs have Error Correcting Code (ECC) memory enabled by default, wh
 sudo nvidia-smi -e 0
 ```
 
-**Warning:** This requires a reboot to take effect, and you should carefully evaluate your data integrity requirements before disabling ECC. For financial, scientific, or medical applications, keep ECC enabled.
+!!! Warning
+
+    This requires a reboot to take effect, and you should carefully evaluate your data integrity requirements before disabling ECC. For financial, scientific, or medical applications, keep ECC enabled.
 
 ### Making Settings Persistent
 
-The `nvidia-smi` settings above won't survive a reboot. To make them persistent, create a systemd service.
+The `nvidia-smi` settings above won't survive a reboot. To make them persistent, create a systemd service at `/etc/systemd/system/nvidia-persistenced.service`
 
-```bash
-sudo tee /etc/systemd/system/nvidia-persistenced.service << 'EOF'
+```ini
 [Unit]
 Description=NVIDIA Persistence Daemon
 After=network.target
@@ -268,7 +269,6 @@ ExecStopPost=/bin/rm -rf /var/run/nvidia-persistenced
 
 [Install]
 WantedBy=multi-user.target
-EOF
 ```
 
 Enable and start the service.
@@ -279,10 +279,9 @@ sudo systemctl enable nvidia-persistenced
 sudo systemctl start nvidia-persistenced
 ```
 
-For the clock settings and compute mode, create a systemd service that runs after the persistence daemon.
+For the clock settings and compute mode, create a systemd service that runs after the persistence daemon at `/etc/systemd/system/nvidia-gpu-optimize.service`.
 
-```bash
-sudo tee /etc/systemd/system/nvidia-gpu-optimize.service << 'EOF'
+```ini
 [Unit]
 Description=NVIDIA GPU Optimization Settings
 After=nvidia-persistenced.service
@@ -292,12 +291,11 @@ Requires=nvidia-persistenced.service
 Type=oneshot
 RemainAfterExit=yes
 ExecStart=/usr/bin/nvidia-smi -c EXCLUSIVE_PROCESS
-ExecStart=/usr/bin/nvidia-smi -lgc 1980,1980
-ExecStart=/usr/bin/nvidia-smi -lmc 2619,2619
+ExecStart=/usr/bin/nvidia-smi -lgc 1980,1980  # NOTE This value may differ based on GPU model
+ExecStart=/usr/bin/nvidia-smi -lmc 2619,2619  # NOTE This value may differ based on GPU model
 
 [Install]
 WantedBy=multi-user.target
-EOF
 ```
 
 Enable the service.
@@ -326,4 +324,6 @@ The OpenStack Flex platform's accelerator-optimized architecture means your GPU 
 
 *Running into issues? The most common problems are GRUB parameters not being applied (check `/proc/cmdline`), kernel module conflicts with nouveau (blacklist it in `/etc/modprobe.d/`), or mismatched driver versions. The NVIDIA forums and Rackspace support are both excellent resources when you hit the weird edge cases.*
 
-For more information about GPU-enabled compute on Rackspace OpenStack Flex, see the [Genestack documentation](https://docs.rackspacecloud.com/) or contact your Rackspace account team. [Sign-up](https://cart.rackspace.com/en/cloud/openstack-flex/account) for Rackspace OpenStack today.
+For more information about GPU-enabled compute on Rackspace OpenStack Flex, see the [Genestack documentation](https://docs.rackspacecloud.com/) or contact your Rackspace account team.
+
+Are you ready to begin clouding? [Sign-up](https://cart.rackspace.com/en/cloud/openstack-flex/account) for Rackspace OpenStack today.

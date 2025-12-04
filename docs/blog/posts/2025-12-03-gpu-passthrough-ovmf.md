@@ -359,4 +359,6 @@ With these configurations in place, Rackspace OpenStack Flex delivers the multi-
 
 ---
 
-For more information about GPU-enabled compute on Rackspace OpenStack Flex, see the [Genestack documentation](https://docs.rackspacecloud.com/) or contact your Rackspace account team. [Sign-up](https://cart.rackspace.com/en/cloud/openstack-flex/account) for Rackspace OpenStack today.
+For more information about GPU-enabled compute on Rackspace OpenStack Flex, see the [Genestack documentation](https://docs.rackspacecloud.com/) or contact your Rackspace account team.
+
+Are you ready to begin clouding? [Sign-up](https://cart.rackspace.com/en/cloud/openstack-flex/account) for Rackspace OpenStack today.
