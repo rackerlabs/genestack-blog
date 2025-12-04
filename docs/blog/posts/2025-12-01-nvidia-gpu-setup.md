@@ -80,42 +80,76 @@ sudo reboot
 
 Wait a minute or two for the instance to come back up, then SSH back in. You can verify your kernel version with `uname -r` to confirm the upgrade took effect.
 
-Here's where things get real. NVIDIA provides drivers specifically optimized for datacenter GPUs like the H100 and A30. We're using the 580.x branch, which is the current production release for these cards. However, always check [NVIDIA's official driver page](https://www.nvidia.com/Download/index.aspx) for the latest recommendations.
+=== "Official NVIDIA Drivers"
 
-Download the driver package.
+    Here's where things get real. NVIDIA provides drivers specifically optimized for datacenter GPUs like the H100 and A30. We're using the 580.x branch, which is the current production release for these cards. However, always check [NVIDIA's official driver page](https://www.nvidia.com/Download/index.aspx) for the latest recommendations.
 
-```bash
-wget https://us.download.nvidia.com/tesla/580.105.08/nvidia-driver-local-repo-ubuntu2404-580.105.08_1.0-1_amd64.deb
-```
-
-Install the local repository package.
-
-```bash
-sudo dpkg -i nvidia-driver-local-repo-ubuntu2404-580.105.08_1.0-1_amd64.deb
-```
-
-Copy the GPG keyring to your system's trusted keys.
-
-```bash
-sudo cp /var/nvidia-driver-local-repo-ubuntu2404-580.105.08/nvidia-driver-local-207F658F-keyring.gpg /usr/share/keyrings/
-```
-
-Update your package lists and install the CUDA drivers.
-
-```bash
-sudo apt update
-sudo apt install -y cuda-drivers-580
-```
-
-!!! note "Alternative: Open-Source NVIDIA Drivers"
-
-    If you prefer the open-source kernel modules (which NVIDIA now provides for datacenter GPUs), you can install those instead:
+    Download the driver package.
 
     ```bash
-    sudo apt install -y nvidia-open-580
+    wget https://us.download.nvidia.com/tesla/580.105.08/nvidia-driver-local-repo-ubuntu2404-580.105.08_1.0-1_amd64.deb
     ```
 
-    The open drivers provide identical functionality for compute workloads and are fully supported on H100/A30 hardware. The choice between proprietary and open modules is largely philosophical at this point, both work.
+    Install the local repository package.
+
+    ```bash
+    sudo dpkg -i nvidia-driver-local-repo-ubuntu2404-580.105.08_1.0-1_amd64.deb
+    ```
+
+    Copy the GPG keyring to your system's trusted keys.
+
+    ```bash
+    sudo cp /var/nvidia-driver-local-repo-ubuntu2404-580.105.08/nvidia-driver-local-207F658F-keyring.gpg /usr/share/keyrings/
+    ```
+
+    Update your package lists and install the CUDA drivers.
+
+    ```bash
+    sudo apt update
+    sudo apt install -y cuda-drivers-580
+    ```
+
+    !!! note "Alternative: Open-Source NVIDIA Drivers"
+
+        If you prefer the open-source kernel modules (which NVIDIA now provides for datacenter GPUs), you can install those instead:
+
+        ```bash
+        sudo apt install -y nvidia-open-580
+        ```
+
+        The open drivers provide identical functionality for compute workloads and are fully supported on H100/A30 hardware. The choice between proprietary and open modules is largely philosophical at this point, both work.
+
+=== "Distro Drivers"
+
+    Ubuntu includes NVIDIA drivers in its default repositories. While these may not always be the absolute latest, they are tested and integrated with the distro's kernel.
+
+    Install the driver package common package.
+
+    ```bash
+    sudo apt install -y ubuntu-drivers-common
+    ```
+
+    Use the `ubuntu-drivers` tool to automatically identify and install the recommended NVIDIA driver for your GPU.
+
+    ```bash
+    sudo ubuntu-drivers autoinstall
+    ```
+
+    !!! note "Alternative: Open-Source NVIDIA Drivers"
+
+        If you want to install a specific version of the open-source NVIDIA drivers, you can do so with:
+
+        ```bash
+        sudo ubuntu-drivers list --gpgpu
+        ```
+
+        Then install the desired version, for example:
+
+        ```bash
+        sudo ubuntu-drivers install --gpgpu nvidia:580-server
+        ```
+
+    Refer to the [Ubuntu documentation](https://documentation.ubuntu.com/server/how-to/graphics/install-nvidia-drivers/) for more details.
 
 Once again, reboot to load the NVIDIA drivers.
 
