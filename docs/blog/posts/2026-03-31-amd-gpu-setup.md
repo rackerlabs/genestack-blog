@@ -20,6 +20,8 @@ categories:
 
 If you've read our [NVIDIA getting started guide](https://blog.rackspacecloud.com/blog/2025/12/01/getting_started_with_gpu_compute_on_rackspace_openstack_flex/), you know the drill: provision an instance, install drivers, verify the hardware, start computing. The AMD path follows the same logic but with different tooling. Instead of CUDA, you're working with ROCm. Instead of `nvidia-smi`, you've got `rocm-smi`. Instead of a driver ecosystem that's had two decades of cloud deployment polish, you've got one that's been moving fast and getting dramatically better, but still has some rough edges worth knowing about.
 
+<!-- more -->
+
 This guide walks you through setting up an AMD Radeon AI PRO R9700 on Rocky Linux 9, first step by step so you understand what each piece does, then as a cloud-init file you can fire and forget on your next instance launch. If you've worked through our [R9700 deployment post](https://blog.rackspacecloud.com/blog/2026/03/31/bringing_the_amd_radeon_ai_pro_r9700_online_in_openstack_flex/), you know the operator side; this is the tenant side of the same coin.
 
 ## Prerequisites
