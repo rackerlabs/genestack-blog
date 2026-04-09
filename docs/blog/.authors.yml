@@ -8,6 +8,12 @@ authors:
     twitter: rackspace
     linkedin: rackspace
     website: https://docs.rackspacecloud.com
+  chrisbreu:
+    name: Chris Breu
+    description: Senior Architect @ Rackspace Technology
+    avatar: https://github.com/rackerlabs.png
+    github: brewc
+    linkedin: brew
   cloudnull:
     name: Kevin Carter
     description: Product Director. Developer? Cloud! Caffeine-fueled confidence.
