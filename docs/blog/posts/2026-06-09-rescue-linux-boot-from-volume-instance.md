@@ -19,6 +19,8 @@ When an OpenStack instance backed by a persistent Cinder volume (Boot-From-Volum
 
 This guide provides a comprehensive guide to help analyze the storage layout and some basic commands to reapir a filesystem using nativ Linux tools.
 
+<!-- more -->
+
 ## Part 1: Architecture & Control Plane Execution
 
 ### The Workflow Overview
