@@ -8,6 +8,11 @@ authors:
     twitter: rackspace
     linkedin: rackspace
     website: https://docs.rackspacecloud.com
+  dwith:
+    name: Dan With
+    description: Software Developer @ Rackspace Technology
+    avatar: https://github.com/dwith.png
+    github: dwith
   chrisbreu:
     name: Chris Breu
     description: Senior Architect @ Rackspace Technology
