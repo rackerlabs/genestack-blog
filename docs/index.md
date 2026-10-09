@@ -28,12 +28,4 @@ Welcome to the Rackspace Cloud Blog. Here, you'll find insight from Rackers on e
 
     [:octicons-book-24: Start reading today](blog/index.md)
 
--   :material-lan-disconnect:{ .xl .middle } __When Hardware Offload Goes Silent__
-
-    ![Genestack Networking](assets/images/genestack-logo-mono.png){ align=left : style="filter:drop-shadow(#3c3c3c 0.5rem 0.5rem 10px);max-width:125px" }
-
-    What happens when NICs don't support hardware offload and disabling it leaves orphaned TC flower filters in the Linux kernel? Here's how we audited and remediated 121 production nodes.
-
-    [:octicons-book-24: Read the story](blog/posts/2026-10-06-orphaned-tc-flower-filters-and-silent-packet-drops.md)
-
 </div>
