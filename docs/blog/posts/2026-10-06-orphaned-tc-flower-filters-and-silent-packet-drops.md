@@ -4,7 +4,7 @@ title: "When Hardware Offload Goes Silent: The Case of the Orphaned TC Flowers"
 authors:
   - dwith
 description: >-
-  What happens when NICs lack hardware offload support and disabling it leaves dormant Linux TC flower rules in the kernel? Here is how Genestack engineers tracked down silent packet drops, hung Cinder services, and audited 121 production nodes.
+  What happens when NICs lack hardware offload support and disabling it leaves dormant Linux TC flower rules in the kernel? Here is how Genestack engineers tracked down silent packet drops, bidirectional ingress/egress filter blind spots, hung Cinder services, and audited 121 production nodes.
 categories:
   - openstack
   - networking
@@ -28,18 +28,18 @@ Naturally, we took the responsible engineering decision: turn off hardware offlo
 
 What we did not realize at the time was that we had inadvertently primed a silent time bomb across dozens of hosts. Weeks later, services would begin mysteriously hanging, TCP handshakes would drop into one-way black holes, and the culprit would turn out to be a ghost in the Linux kernel: **orphaned Traffic Control (TC) flower filters**.
 
-Here is the story of how we uncovered the problem, why standard troubleshooting tooling failed to see it, and how we engineered an automated audit and remediation pipeline across 121 production nodes in [PR #1843](https://github.com/rackerlabs/genestack/pull/1843/).
+Here is the story of how we uncovered the problem, why standard troubleshooting tooling failed to see it, and how we engineered an automated audit and remediation pipeline across 121 production nodes in [PR #1843](https://github.com/rackerlabs/genestack/pull/1843/) and its subsequent bidirectional overhaul.
 
 ---
 
 ## The Mystery: The Case of the Hanging Cinder Nodes
 
-The trouble surfaced weeks after disabling hardware offload during routine operations and certificate rotations. On storage nodes like `1116512-blockstorage-prod`, OpenStack block storage services (`cinder-volume`, `cinder-volume-netapp`, and `cinder-backup`) reported as `active (running)` in `systemctl status`, yet they were completely dead in the water.
+The trouble surfaced weeks after disabling hardware offload during routine operations and certificate rotations. On storage nodes like `1234-blockstorage-prod`, OpenStack block storage services (`cinder-volume`, `cinder-volume-netapp`, and `cinder-backup`) reported as `active (running)` in `systemctl status`, yet they were completely dead in the water.
 
 They logged no application output, generated no heartbeats, and were conspicuously absent from `openstack volume service list`:
 
 ```shell
-overseer$ openstack volume service list --service cinder-volume | grep 1116512-blockstorage-prod
+overseer$ openstack volume service list --service cinder-volume | grep 1234-blockstorage-prod
 # (crickets — no output)
 ```
 
@@ -65,7 +65,7 @@ In OpenStack Cinder, the very first network operation executed inside `Service.c
 We ran a quick TCP check from the host to the MariaDB ClusterIP VIP:
 
 ```shell
-root@1116512-blockstorage-prod:~# nc -zv 10.233.43.30 3306
+root@1234-blockstorage-prod:~# nc -zv 10.233.43.30 3306
 Connection to 10.233.43.30 3306 port [tcp/mysql] succeeded!
 ```
 
@@ -80,11 +80,11 @@ When `nc -zv` says "succeeded", it only proves one thing: the initial TCP SYN wa
 We fired up the real MariaDB client from the broken node:
 
 ```shell
-root@1116512-blockstorage-prod:~# mariadb -h 10.233.43.30 -u cinder -p
+root@1234-blockstorage-prod:~# mariadb -h 10.233.43.30 -u cinder -p
 # Hangs indefinitely...
 ```
 
-Meanwhile, from a peer storage node (`1116514-blockstorage-prod`), the exact same command connected instantly.
+Meanwhile, from a peer storage node (`1236-blockstorage-prod`), the exact same command connected instantly.
 
 We checked the low-level TCP socket statistics with `ss -tnpi`:
 
@@ -103,7 +103,7 @@ The server never received our client's ACK! The server thought the connection wa
 
 To see where the packets were vanishing, we ran simultaneous `tcpdump` traces during a connection attempt.
 
-On the healthy node (`1116514`), every outbound packet appeared on the OVN host interface (`ovn0`) and then on the Geneve tunnel interface (`genev_sys_6081`):
+On the healthy node (`1236-blockstorage-prod`), every outbound packet appeared on the OVN host interface (`ovn0`) and then on the Geneve tunnel interface (`genev_sys_6081`):
 ```text
 ovn0 Out: SYN -> genev_sys_6081 Out: SYN
 genev_sys_6081 In: SYN-ACK -> ovn0 In: SYN-ACK
@@ -111,7 +111,7 @@ ovn0 Out: ACK -> genev_sys_6081 Out: ACK
 # Greeting received! Handshake complete.
 ```
 
-On the broken node (`1116512`), something bizarre happened:
+On the broken node (`1234-blockstorage-prod`), something bizarre happened:
 ```text
 ovn0 Out: SYN -> genev_sys_6081 Out: SYN
 genev_sys_6081 In: SYN-ACK -> ovn0 In: SYN-ACK
@@ -123,7 +123,7 @@ The SYN traversed `ovn0` normally. But the ACK and every subsequent packet **byp
 
 ```mermaid
 flowchart TD
-    subgraph Client Node ["Host: 1116512-blockstorage-prod"]
+    subgraph Client Node ["Host: 1234-blockstorage-prod"]
         App["Cinder / MariaDB Client"] --> IPVS["IPVS (ClusterIP: 10.233.43.30:3306)"]
         IPVS --> DNAT["DNAT -> Pod IP: 10.236.24.130"]
         DNAT --> OVN0["dev ovn0 (Host Egress)"]
@@ -135,7 +135,7 @@ flowchart TD
         TC ==>|"mirred stolen (Frozen Destination: 172.26.64.11)"| DeadChassis["Old MariaDB Chassis (172.26.64.11) 💥 BLACK HOLE"]
     end
     
-    TunnelDev -->|"Delivered"| LiveMariaDB["Node: 1335012 (MariaDB Pod)"]
+    TunnelDev -->|"Delivered"| LiveMariaDB["Node: 5672-mgmt-prod (MariaDB Pod)"]
 ```
 
 ---
@@ -145,7 +145,7 @@ flowchart TD
 How could packets skip the interface capture point and end up tunneled to oblivion? We inspected the Linux Traffic Control (`tc`) filters on `ovn0`:
 
 ```shell
-root@1116512-blockstorage-prod:~# tc -s filter show dev ovn0 egress
+root@1234-blockstorage-prod:~# tc -s filter show dev ovn0 egress
 ```
 
 Buried in the dump was this rule:
@@ -172,7 +172,7 @@ Let's dissect what this rule was doing:
 
 And here is the kicker: **MariaDB was not at `172.26.64.11` anymore.**
 
-Twelve days earlier, during an automated TLS certificate rotation orchestrated by `mariadb-operator`, the single-replica MariaDB pod had been deleted and rescheduled from node `1335010` (overlay IP `172.26.64.11`) to `1335012` (overlay IP `172.26.64.13`). 
+Twelve days earlier, during an automated TLS certificate rotation orchestrated by `mariadb-operator`, the single-replica MariaDB pod had been deleted and rescheduled from management node `5670-mgmt-prod` (overlay IP `172.26.64.11`) to `5672-mgmt-prod` (overlay IP `172.26.64.13`). 
 
 The live OVS software datapath knew this and correctly routed to `.13`. But the TC flower filter was a frozen relic pointing at `.11`. Every ACK sent by Cinder was being stolen by the kernel TC subsystem and thrown into the void on a host that no longer ran the database!
 
@@ -196,7 +196,7 @@ Any packet arriving on the tunnel whose tuple collided with one of these dormant
 
 ---
 
-## Remediation 1.0 and the Hidden Blind Spots
+## Remediation Iterations and the Hidden Blind Spots
 
 Once we understood the problem, we set out to build automation. We created a read-only audit script (`scripts/tc-offload-audit.sh`) and an Ansible remediation playbook (`ansible/playbooks/clear-stale-tc-flower.yaml`) in [PR #1740](https://github.com/rackerlabs/genestack/pull/1740).
 
@@ -204,14 +204,14 @@ The strategy was straightforward:
 - Confirm OVS reports zero live TC datapath flows (`ovs-appctl dpctl/dump-flows type=tc`).
 - Delete stale flower filters and ingress qdiscs on affected interfaces.
 
-It seemed to work. But as we observed the cluster over the subsequent weeks, intermittent network timeouts continued to pop up on isolated nodes. When we dug deeper, we realized our first-generation tooling was riddled with critical architectural blind spots.
+It seemed to work. But as we observed the cluster over the subsequent weeks, intermittent network timeouts continued to pop up across different node roles. When we dug deeper, we realized our early tooling was riddled with subtle, layered architectural blind spots.
 
 ### Blind Spot 1: The "Chain 0" Fallacy
 
-In the initial audit script and playbook, the commands were explicitly scoped to **`chain 0`**:
+In the initial audit script and playbook, cleanup commands were explicitly scoped to **`chain 0`**:
 
 ```bash
-# Old playbook snippet
+# Early playbook snippet
 pre=$(tc filter show dev $d ingress chain 0 2>/dev/null | grep -c "^filter.*flower")
 if [ "$pre" -gt 0 ]; then
   tc filter del dev $d ingress chain 0 2>/dev/null
@@ -221,31 +221,25 @@ fi
 And in `tc-offload-audit.sh`:
 
 ```bash
-# Old audit verdict logic
+# Early audit verdict logic
 elif [ "$hw" = "false" ] && [ "$live_flows" = "0" ] && [ "$chain0_max" -eq 0 ]; then
   verdict="RESIDUAL-ONLY (Acceptable)"
 ```
 
-This was a massive mistake. 
+This was a major oversight. OVS flower offloading uses **goto-chains** extensively. Complex flows match on chain 0, perform an action (like `ct` or `pedit`), and branch into `chain 1`, `chain 2`, or arbitrary chain IDs like `chain 234159283`.
 
-OVS flower offloading uses **goto-chains** extensively. Complex flows match on chain 0, perform an action (like `ct` or `pedit`), and branch into `chain 1`, `chain 2`, or arbitrary chain IDs like `chain 234159283`.
-
-When `chain 0` was cleared, the higher-numbered chains remained lodged in the kernel on `genev_sys_6081` and shared ingress blocks (`block 10`, `block 11`). The audit script saw `chain 0` was empty, cheerfully declared the node `RESIDUAL-ONLY (Acceptable)`, exited with code `0`, and allowed our deployment pipelines to proceed!
-
-Meanwhile, dozens of dormant filters containing `mirred (Egress Redirect to device *) stolen` remained alive on higher chains, ready to swallow packets whenever an ephemeral port or tunnel ID collided with them.
+When `chain 0` was cleared, the higher-numbered chains remained lodged in the kernel on `genev_sys_6081` and shared ingress blocks (`block 10`, `block 11`). The audit script saw `chain 0` was empty, declared the node `RESIDUAL-ONLY (Acceptable)`, exited with code `0`, and allowed our deployment pipelines to proceed. Meanwhile, dozens of dormant filters containing `mirred (Egress Redirect to device *) stolen` remained alive on higher chains, ready to swallow packets whenever an ephemeral port or tunnel ID collided with them.
 
 ### Blind Spot 2: Hostname Resolution and the Skipped Node
 
-In our Ansible playbook, the task needed to execute `ovs-appctl` inside the local `ovs-ovn` pod to check flow status. It built a dictionary mapping node names:
+In our Ansible playbook, the task executed `ovs-appctl` inside the local `ovs-ovn` pod to verify flow status. It built a dictionary mapping node names:
 
 ```yaml
-# Old playbook lookup
+# Early playbook lookup
 ovs_pod: "{{ ovs_pod_by_node[node_name] | default('') }}"
 ```
 
-In production, inventory hostnames often vary between short names (`1116481-blockstorage-prod`) and fully qualified domain names (`1116481-blockstorage-prod.example.com`), whereas Kubernetes `spec.nodeName` uses the FQDN.
-
-When an inventory host failed an exact string match, `ovs_pod` resolved to an empty string. The playbook encountered:
+In production, inventory hostnames often vary between short names (`1238-blockstorage-prod`) and fully qualified domain names (`1238-blockstorage-prod.example.com`), whereas Kubernetes `spec.nodeName` uses the FQDN. When an inventory host failed an exact string match, `ovs_pod` resolved to an empty string:
 
 ```yaml
 - name: Skip hosts that do not run an ovs-ovn pod
@@ -254,96 +248,159 @@ When an inventory host failed an exact string match, `ovs_pod` resolved to an em
     - name: Mark NO-OVS-POD
 ```
 
-The node was silently marked `NO-OVS-POD` and skipped! The playbook reported a clean run, while the node sat completely un-remediated in production with all its stranded flower rules intact.
+The node was silently marked `NO-OVS-POD` and skipped! The playbook reported a clean run, while the node sat completely un-remediated with all its stranded flower rules intact.
 
-### Blind Spot 3: Dynamic Device Discovery Gaps
+### Blind Spot 3: The Direction Blind Spot (`ingress` vs. `egress` on `ovn0`)
 
-The original cleanup loop only inspected devices discovered via:
+Even after multi-chain cleanup was introduced in [PR #1843](https://github.com/rackerlabs/genestack/pull/1843/), transit tunnel drops were resolved on compute and storage nodes, but **certain management nodes remained broken**, unable to reach MariaDB.
+
+Why? Because Linux `clsact` qdiscs attach to **both** ingress and egress.
+
+For transit packets forwarded through Geneve tunnels between nodes, traffic hits `ingress`. But **host-originated traffic** destined for Kubernetes ClusterIPs (such as control plane services communicating with `mariadb-cluster-primary.openstack.svc.cluster.local:3306`) takes a fundamentally different path:
+
+1. A local host process (Cinder, Nova, Glance, Neutron) issues a TCP SYN to `<cluster-ip>:3306` (with `TTL=64`).
+2. **IPVS** intercepts locally on the host, decrements the TTL to 63, and DNATs the destination to the backend Pod IP (`<pod-ip>`).
+3. Netfilter **`KUBE-POSTROUTING`** SNATs the source address to the node's Kube-OVN join IP (`<join-ip>`).
+4. The kernel routing table sends the packet **out** through interface **`ovn0`** into the OVN overlay.
+5. Consequently, the packet traverses the **`egress` hook of `ovn0`**!
+
+Stranded TC flower offload rules explicitly matched `ip_ttl 63` + `dst_ip <pod-ip>` on **`ovn0 egress`**, applying `tunnel_key set dst_ip <old-node-ip>` and `mirred stolen`.
+
+Because earlier tooling exclusively audited and cleaned `ingress`, every single one of these `ovn0 egress` rules was completely invisible and survived cleanup!
+
+### Blind Spot 4: Netlink Silent Deletion Rejection (`ENOENT`)
+
+When we attempted to script the deletion of flower rules across devices, we ran into an unexpected Netlink quirk.
+
+OVS TC offload installs rules explicitly bound to specific network protocols (`protocol ip` / `ETH_P_IP` `0x0800`). When running deletion commands without specifying `protocol ip`:
 
 ```bash
-tc qdisc show | grep -E "^qdisc (ingress|clsact)" | awk '{print $5}'
+# What the script ran:
+tc filter del dev $d egress chain $c
 ```
 
-In certain kernel states, interfaces like `genev_sys_6081`, `ovn0`, or `br-int` had ingress filters attached without reporting an explicit `ingress_block` or standard qdisc annotation in the summary output. They slipped past the cleanup undetected.
+`iproute2` sends a Netlink request defaulting the protocol field to `0` (`ETH_P_ALL`). The kernel classifier rejects this request with `ENOENT` ("No such file or directory") because no rule exists under protocol 0!
+
+Because shell cleanup routines frequently suppress errors with `2>/dev/null || true` to ignore devices that don't have filters, **the kernel was silently refusing to delete the filters**, and the failure was completely masked. The playbook reported a clean pass, but the filters remained active.
+
+### Blind Spot 5: Lingering Netfilter Conntrack State on Port 3306
+
+Because services continually retried TCP connections while the bad TC rules were in place, the host netfilter connection tracking table became populated with stale NAT and destination states. Even after deleting the TC filters and flushing OVS datapath caches, immediate TCP retries continued hitting poisoned conntrack entries until conntrack was explicitly cleared for port 3306 (`conntrack -D -p tcp --dport 3306` and `--sport 3306`).
 
 ---
 
-## Remediation 2.0: PR #1843 & The Fleet-Wide Sweep
+## The Overhaul: Bidirectional Sweeping & Protocol-Aware Deletion
 
-We went back to the drawing board and overhauled both tools in [PR #1843](https://github.com/rackerlabs/genestack/pull/1843/) (commit `19f81a16`).
+To permanently solve this problem, we completely overhauled both `scripts/tc-offload-audit.sh` and `ansible/playbooks/clear-stale-tc-flower.yaml`.
 
-### 1. Rewriting `scripts/tc-offload-audit.sh`
+### 1. Bidirectional Sweeping (`ingress` + `egress`)
 
-We turned the audit script into an uncompromising gate:
+Both the audit script and the playbook now inspect and sweep both directions across all discovered `clsact` and `ingress` devices, known OVN interfaces (`ovn0`, `genev_sys_6081`, `mirror0`, `br-int`), and shared blocks (`ingress_block`, `egress_block`, `block`):
 
-- **Auditing All Chains (`chain0/total`):** Instead of only checking chain 0, the script now tallies both chain 0 and total flower filters across all chains on shared ingress blocks and interfaces:
-  ```text
-  BLOCKS(chain0/total)     DEVS(chain0/total)
-  none                     genev_sys_6081=0/73
-  ```
-- **Strict Verdicts (`ORPHANED-RESIDUAL`):** We eliminated `RESIDUAL-ONLY (Acceptable)`. Any node with non-zero flower filters on any chain is marked `ORPHANED-RESIDUAL` and triggers an exit code of `2`.
-- **Explicit Device Auditing:** We added explicit checks for `genev_sys_6081`, `ovn0`, `mirror0`, and `br-int`, ensuring no critical device escapes scrutiny.
-
-### 2. Overhauling `ansible/playbooks/clear-stale-tc-flower.yaml`
-
-We re-engineered the playbook for comprehensive, atomic cleanup:
-
-- **Multi-Chain Deletion:** The playbook dynamically queries every active chain ID and deletes them one by one before deleting the base filter:
-  ```bash
-  for c in $(tc filter show dev $d ingress 2>/dev/null | grep -oP "chain \K\d+" | sort -un); do
-    tc filter del dev $d ingress chain $c 2>/dev/null || true
+```bash
+for d in $all_devs; do
+  [ -d "/sys/class/net/$d" ] || continue
+  for dir in ingress egress; do
+    pre=$(tc filter show dev $d $dir 2>/dev/null | grep -c "^filter.*flower" || true)
+    if [ "$pre" -gt 0 ]; then
+      clean_target "dev $d $dir"
+    fi
   done
-  tc filter del dev $d ingress 2>/dev/null || true
-  ```
-- **Targeted Qdisc Removal:** If flower rules are detected, we delete the `clsact` and `ingress` qdiscs completely (`tc qdisc del dev $d clsact`), guaranteeing clean packet fall-through directly to `openvswitch.ko`.
-- **Preserving Pod QoS:** We specifically target `flower` classifiers, leaving pod bandwidth rate-limiting filters (`matchall` / `u32` with action `police`) untouched.
-- **OVS Software Datapath Flush:** Immediately after removing the kernel filters, the playbook triggers:
-  ```bash
-  ovs-appctl dpctl/del-flows
-  ```
-  This forces OVS to flush its software flow cache and cleanly re-instantiate active flows from OpenFlow rules.
-- **Hostname Normalization:** We fixed the hostname mapping dictionary to index both FQDNs and short hostnames:
-  ```yaml
-  ovs_pod_by_node: >-
-    {{ dict(tc_ovs_pods | map(attribute='spec.nodeName')
-            | zip(tc_ovs_pods | map(attribute='metadata.name')))
-       | combine(dict(tc_ovs_pods | map(attribute='spec.nodeName')
-                      | map('regex_replace', '\..*$', '')
-                      | zip(tc_ovs_pods | map(attribute='metadata.name')))) }}
-  ```
-  No more `NO-OVS-POD` false skips.
+done
+```
+
+### 2. Protocol- and Priority-Aware Deletion (`clean_target`)
+
+Instead of issuing generic deletion commands that Netlink silently rejects, the cleanup helper parses `tc filter show` to extract exact `(protocol, pref, chain, handle)` attributes:
+
+```bash
+clean_target() {
+  local target="$1"
+  local show_out
+  show_out=$(tc filter show $target 2>/dev/null || true)
+  [ -n "$show_out" ] || return 0
+
+  # 1. Parse and delete specific flower filter handles with protocol & pref
+  while IFS="|" read -r p_proto p_pref p_chain p_handle; do
+    [ -n "$p_handle" ] || continue
+    tc filter del $target ${p_proto:+protocol $p_proto} ${p_pref:+pref $p_pref} ${p_chain:+chain $p_chain} handle "$p_handle" flower >/dev/null 2>&1 || true
+    tc filter del $target ${p_proto:+protocol $p_proto} ${p_pref:+pref $p_pref} handle "$p_handle" flower >/dev/null 2>&1 || true
+    tc filter del $target protocol ip ${p_pref:+pref $p_pref} handle "$p_handle" flower >/dev/null 2>&1 || true
+    tc filter del $target protocol ip pref 2 handle "$p_handle" flower >/dev/null 2>&1 || true
+  done < <(echo "$show_out" | awk '...')
+
+  # 2. Explicitly purge pref 2 offload chain (OVS HW_OFFLOAD default)
+  tc filter del $target protocol ip pref 2 >/dev/null 2>&1 || true
+  tc filter del $target protocol ipv6 pref 2 >/dev/null 2>&1 || true
+  tc filter del $target pref 2 >/dev/null 2>&1 || true
+
+  # 3. Purge all remaining discovered chains
+  for c in $(echo "$show_out" | awk '/^filter .*flower/ { ... }' | sort -un); do
+    tc filter del $target chain "$c" >/dev/null 2>&1 || true
+    tc filter del $target protocol ip chain "$c" >/dev/null 2>&1 || true
+  done
+}
+```
+
+### 3. Flushing OVS Datapath & Netfilter Conntrack
+
+Immediately following filter removal, the playbook flushes the OVS software datapath cache and purges stale netfilter conntrack entries for database connections:
+
+```bash
+# Flush OVS kernel datapath flow cache
+if command -v ovs-appctl >/dev/null 2>&1; then
+  ovs-appctl dpctl/del-flows >/dev/null 2>&1 || true
+elif command -v crictl >/dev/null 2>&1; then
+  ovs_cid=$(crictl ps --name openvswitch -q 2>/dev/null | head -n1)
+  if [ -n "$ovs_cid" ]; then
+    crictl exec "$ovs_cid" ovs-appctl dpctl/del-flows >/dev/null 2>&1 || true
+  fi
+fi
+
+# Purge stale MariaDB connection tracking states
+if command -v conntrack >/dev/null 2>&1; then
+  for p in $CONNTRACK_PORTS; do
+    conntrack -D -p tcp --dport "$p" >/dev/null 2>&1 || true
+    conntrack -D -p tcp --sport "$p" >/dev/null 2>&1 || true
+  done
+fi
+```
+
+### 4. Canonical Kubernetes Node Accounting
+
+We fixed node resolution by mapping canonical unique Kubernetes node names in `tc_ovs_nodes` via `spec.nodeName` and normalizing both FQDNs and short hostnames in `tc_k8s_node_by_name`. This eliminated false "uncovered node" failures and allows operators to safely run with `-e tc_strict=true`.
 
 ---
 
 ## Validation & Results
 
-Before rolling across our production fleet, we performed a dry-run and canary execution on `1116474-blockstorage-prod`:
+Before rolling across our production fleet, we performed a dry-run and canary execution on `1240-blockstorage-prod`:
 
 ```shell
 ansible-playbook -i /etc/genestack/inventory/inventory.yaml \
   /opt/genestack/ansible/playbooks/clear-stale-tc-flower.yaml \
-  --limit 1116474-blockstorage-prod.example.com \
+  --limit 1240-blockstorage-prod.example.com \
   -e tc_cleanup_dry_run=true
 ```
 
 Output:
 ```text
 TASK [Report (dry run) orphaned flower filters on shared blocks and per-device qdiscs]
-ok: [1116474-blockstorage-prod.example.com] => {
-    "msg": "1116474-blockstorage-prod.example.com [DRY-RUN]: genev_sys_6081:73->73"
+ok: [1240-blockstorage-prod.example.com] => {
+    "msg": "1240-blockstorage-prod.example.com [DRY-RUN]: genev_sys_6081:73->73"
 }
 ```
 
 The playbook correctly found all 73 stranded rules on `genev_sys_6081`. 
 
-We executed the remediation live (`-e tc_cleanup_dry_run=false`). The cleanup completed in seconds without a single packet drop, interface flap, or socket disconnect. A direct verification check with `tc -s filter show dev genev_sys_6081 ingress` returned completely clean.
+We executed the remediation live (`-e tc_cleanup_dry_run=false`). The cleanup completed in seconds without a single packet drop, interface flap, or socket disconnect. A direct verification check with `tc -s filter show dev genev_sys_6081 ingress` and `tc -s filter show dev ovn0 egress` returned completely clean.
 
 With confidence restored, we executed the playbook across all 121 production nodes (compute, control, storage, and network). 
 
 We ran the post-remediation audit:
 
 ```text
-((genestack) ) [PROD] ubuntu@1335008-overseer01:/opt/genestack/scripts$ ./tc-offload-audit.sh
+((genestack) ) [PROD] ubuntu@5678-overseer01:/opt/genestack/scripts$ ./tc-offload-audit.sh
 === per-node (full TSV: /home/ubuntu/maint/tc-offload-audit-2026-10-06-1821.tsv) ===
 ...
 === summary ===
@@ -360,7 +417,7 @@ nodes needing attention: none
 
 **100% of nodes transitioned to `CLEAN`.** 
 
-MariaDB ClusterIP connectivity immediately stabilized across all block storage nodes. Cinder services started cleanly, established their database connections, and registered their heartbeats without delay.
+MariaDB ClusterIP and Service FQDN connectivity immediately stabilized across all management and storage nodes. OpenStack control plane services reconnected cleanly, database queries succeeded without delay, and Cinder volume heartbeats resumed as expected.
 
 ---
 
@@ -369,10 +426,12 @@ MariaDB ClusterIP connectivity immediately stabilized across all block storage n
 This incident was one of the most subtle networking bugs we have encountered, and it left us with several key takeaways for operating large-scale software-defined networks:
 
 1. **Turning off a userspace feature does not clean up the kernel.** Setting `other_config:hw-offload=false` in OVS stopped it from managing TC rules, but it did not remove existing rules. The kernel faithfully executed those abandoned rules until we explicitly purged them.
-2. **TC hooks precede software datapath hooks.** When debugging packet loss in OVS/OVN environments, never assume `ovs-appctl dpctl/dump-flows` or interface tcpdump tells the full story. If a packet is stolen by a TC filter at the ingress/egress hook, it never enters the OVS pipeline at all.
-3. **Beware the "Chain 0" assumption.** Modern kernel networking uses multi-chain classification. When auditing or pruning TC flower rules, always inspect all chains. A clean `chain 0` can easily conceal active packet-dropping filters on higher-numbered chains.
-4. **Normalize your inventory keys.** In cross-system automation bridging Ansible and Kubernetes, never rely on a single hostname format. Normalize both FQDNs and short hostnames to prevent critical nodes from being silently skipped.
-5. **Canary with dry-runs and automated gates.** By building an audit script with strict exit codes and pairing it with a dry-run enabled playbook, we were able to safely remediate 121 production hypervisors and storage appliances during live customer operations without downtime.
+2. **SDN offload is bidirectional.** `clsact` attaches to both ingress and egress hooks. Transit overlay packets arrive on `ingress`, but host-originated traffic routed into overlays traverses `egress`. Never audit only `ingress`.
+3. **Beware silent Netlink rejections.** Netlink commands like `tc filter del` require exact protocol matching (`protocol ip`). Omitting the protocol defaults to protocol 0 (`ETH_P_ALL`), which the kernel classifier rejects with `ENOENT`. Swallowing errors with `2>/dev/null || true` can easily mask persistent filter retention.
+4. **L4 connection tracking outlives L2/L3 datapath fixes.** Even after deleting stale TC flower rules and clearing OVS flow caches, netfilter conntrack can continue routing retried connections through poisoned NAT states until flushed.
+5. **Beware the "Chain 0" assumption.** Modern kernel networking uses multi-chain classification. When auditing or pruning TC flower rules, always inspect all chains. A clean `chain 0` can easily conceal active packet-dropping filters on higher-numbered chains.
+6. **Normalize your inventory keys.** In cross-system automation bridging Ansible and Kubernetes, never rely on a single hostname format. Normalize both FQDNs and short hostnames to prevent critical nodes from being silently skipped.
+7. **Canary with dry-runs and automated gates.** By building an audit script with strict exit codes and pairing it with a dry-run enabled playbook, we were able to safely remediate 121 production hypervisors and storage appliances during live customer operations without downtime.
 
 ---
 
